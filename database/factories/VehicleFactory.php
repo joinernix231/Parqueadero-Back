@@ -23,3 +23,4 @@ class VehicleFactory extends Factory
 
 
 
+

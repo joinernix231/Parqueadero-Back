@@ -46,3 +46,4 @@ class ParkingSpot extends Model
 
 
 
+

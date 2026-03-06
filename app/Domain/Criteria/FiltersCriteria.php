@@ -51,7 +51,20 @@ class FiltersCriteria implements FilterCriteriaInterface
         array $allowedRelations = [],
         array $dateFields = []
     ) {
-        $this->filters = is_string($filters) ? $this->parseFilters($filters) : $filters;
+        if (is_string($filters)) {
+            $this->filters = $this->parseFilters($filters);
+        } elseif (is_array($filters)) {
+            // Si es un array asociativo (como ['date_from' => '2024-01-01']), convertirlo al formato correcto
+            if ($this->isAssociativeArray($filters)) {
+                $this->filters = $this->convertAssociativeToFilters($filters, $allowedFields, $dateFields);
+            } else {
+                // Ya está en el formato correcto [['field' => ..., 'operator' => ..., 'value' => ...]]
+                $this->filters = $filters;
+            }
+        } else {
+            $this->filters = [];
+        }
+        
         $this->allowedFields = $allowedFields;
         $this->allowedRelations = $allowedRelations;
         $this->dateFields = $dateFields;
@@ -245,6 +258,58 @@ class FiltersCriteria implements FilterCriteriaInterface
     }
 
     /**
+     * Check if array is associative
+     */
+    protected function isAssociativeArray(array $array): bool
+    {
+        if (empty($array)) {
+            return false;
+        }
+        
+        // Check if keys are numeric and sequential (indexed array)
+        return array_keys($array) !== range(0, count($array) - 1);
+    }
+
+    /**
+     * Convert associative array to filters format
+     */
+    protected function convertAssociativeToFilters(array $filters, array $allowedFields = [], array $dateFields = []): array
+    {
+        $converted = [];
+        
+        foreach ($filters as $key => $value) {
+            // Skip empty values
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            // If allowedFields is specified, only include allowed fields
+            if (!empty($allowedFields) && !in_array($key, $allowedFields)) {
+                continue;
+            }
+
+            // Determine operator based on field type
+            $operator = 'eq';
+            
+            if (in_array($key, $dateFields)) {
+                $operator = 'date';
+            } elseif (str_contains((string)$value, ',')) {
+                $operator = 'in';
+            } elseif (strlen((string)$value) > 3 && (str_contains((string)$value, '%') || preg_match('/[a-zA-Z]/', (string)$value))) {
+                $operator = 'like';
+            }
+
+            $converted[] = [
+                'field' => $key,
+                'operator' => $operator,
+                'value' => (string)$value,
+            ];
+        }
+
+        return $converted;
+    }
+
+    /**
      * Create instance from request
      */
     public static function fromRequest(array $requestData, array $allowedFields = [], array $allowedRelations = [], array $dateFields = []): self
@@ -281,6 +346,7 @@ class FiltersCriteria implements FilterCriteriaInterface
         return new self($filters, $allowedFields, $allowedRelations, $dateFields);
     }
 }
+
 
 
 

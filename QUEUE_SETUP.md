@@ -97,3 +97,4 @@ Los logs de los Jobs se registran en `storage/logs/laravel.log`:
 - ✅ Logs detallados para debugging
 - ✅ Separación de responsabilidades (Clean Architecture)
 
+

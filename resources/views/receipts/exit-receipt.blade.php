@@ -211,7 +211,7 @@
 
         <div class="footer">
             <p>Gracias por utilizar nuestros servicios</p>
-            <p>Generado el {{ date('d/m/Y H:i:s') }}</p>
+            <p>Generado el {{ now()->format('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>

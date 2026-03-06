@@ -38,3 +38,4 @@ class ParkingSpotResource extends JsonResource
 
 
 
+

@@ -47,6 +47,23 @@ class AuthController extends Controller
             ], 500);
         }
     }
+
+    public function me(Request $request): JsonResponse|\App\Http\Resources\UserResource
+    {
+        try {
+            $userEntity = $this->userRepository->findById($request->user()->id);
+            if (!$userEntity) {
+                return response()->json([
+                    'message' => 'Usuario no encontrado',
+                ], 404);
+            }
+            return new \App\Http\Resources\UserResource($userEntity);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 401);
+        }
+    }
 }
 
 

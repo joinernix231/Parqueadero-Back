@@ -10,6 +10,7 @@ use App\Domain\Repositories\ParkingLotRepositoryInterface;
 use App\Domain\Repositories\ParkingSpotRepositoryInterface;
 use App\Domain\Repositories\ParkingTicketRepositoryInterface;
 use App\Domain\Repositories\VehicleRepositoryInterface;
+use App\Domain\Services\DateTimeService;
 use App\Domain\Services\ParkingAvailabilityService;
 use App\Domain\Services\VehicleValidationService;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,8 @@ class EntryVehicleUseCase
         private ParkingTicketRepositoryInterface $parkingTicketRepository,
         private VehicleValidationService $vehicleValidationService,
         private ParkingAvailabilityService $availabilityService,
-        private CreateVehicleAction $createVehicleAction
+        private CreateVehicleAction $createVehicleAction,
+        private DateTimeService $dateTimeService
     ) {
     }
 
@@ -68,7 +70,8 @@ class EntryVehicleUseCase
             $this->parkingSpotRepository->update($parkingSpot->getId(), ['is_occupied' => true]);
 
             // Crear ticket
-            $entryTime = $dto->entryTime ?? date('Y-m-d H:i:s');
+            // Normalizar entry_time de UTC a zona horaria local si viene del frontend
+            $entryTime = $this->dateTimeService->normalizeFromUtc($dto->entryTime);
             $ticketData = [
                 'vehicle_id' => $vehicle->getId(),
                 'parking_spot_id' => $parkingSpot->getId(),

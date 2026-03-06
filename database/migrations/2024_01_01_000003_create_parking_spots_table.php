@@ -38,3 +38,4 @@ class CreateParkingSpotsTable extends Migration
 
 
 
+

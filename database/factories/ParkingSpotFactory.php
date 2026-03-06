@@ -25,3 +25,4 @@ class ParkingSpotFactory extends Factory
 
 
 
+

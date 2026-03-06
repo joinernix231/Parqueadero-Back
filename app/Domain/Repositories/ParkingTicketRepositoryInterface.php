@@ -19,10 +19,18 @@ interface ParkingTicketRepositoryInterface
 
     public function paginateHistory(int $perPage = 15, array $filters = []): LengthAwarePaginator;
 
-    public function findCurrentParkedVehicles(int $parkingLotId = null): array;
+    public function findCurrentParkedVehicles(?int $parkingLotId = null, array|string|null $filters = [], ?string $search = null): array;
+
+    public function paginateCurrentParkedVehicles(int $perPage = 15, ?int $parkingLotId = null, array|string|null $filters = [], ?string $search = null): LengthAwarePaginator;
 
     public function create(array $data): ParkingTicket;
 
     public function update(int $id, array $data): bool;
+
+    /**
+     * Obtiene estadísticas del dashboard usando agregaciones SQL optimizadas
+     * Retorna solo números sin cargar entidades completas
+     */
+    public function getDashboardStats(): array;
 }
 

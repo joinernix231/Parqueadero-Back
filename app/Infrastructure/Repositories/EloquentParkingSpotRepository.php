@@ -69,3 +69,4 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
 
 
 
+

@@ -49,3 +49,4 @@ class CreateParkingTicketsTable extends Migration
 
 
 
+

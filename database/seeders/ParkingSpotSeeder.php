@@ -59,3 +59,4 @@ class ParkingSpotSeeder extends Seeder
 
 
 
+

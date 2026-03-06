@@ -35,7 +35,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Estacionamientos
     Route::get('/parking-lots', [ParkingLotController::class, 'index']);
+    Route::post('/parking-lots', [ParkingLotController::class, 'store']);
     Route::get('/parking-lots/{id}', [ParkingLotController::class, 'show']);
+    Route::put('/parking-lots/{id}', [ParkingLotController::class, 'update']);
 
     // Espacios
     Route::get('/parking-spots/available', [ParkingSpotController::class, 'available']);
@@ -51,8 +53,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/parking/tickets/by-plate/{plate}', [ParkingController::class, 'findByPlate']);
     Route::get('/parking/current', [ParkingController::class, 'current']);
     Route::get('/parking/history', [ParkingController::class, 'history']);
+    Route::get('/dashboard/stats', [ParkingController::class, 'dashboardStats']);
 
     // Usuario autenticado
+    Route::get('/me', [AuthController::class, 'me']);
     Route::get('/user', function (Request $request) {
         $userEntity = app(\App\Domain\Repositories\UserRepositoryInterface::class)
             ->findById($request->user()->id);

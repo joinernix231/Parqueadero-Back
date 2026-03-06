@@ -14,6 +14,7 @@ use App\Domain\DTOs\PaymentDTO;
 use App\Domain\Repositories\ParkingLotRepositoryInterface;
 use App\Domain\Repositories\ParkingTicketRepositoryInterface;
 use App\Domain\Services\PricingService;
+use App\Http\Requests\Parking\CurrentTicketsRequest;
 use App\Http\Requests\Parking\EntryRequest;
 use App\Http\Requests\Parking\ExitRequest;
 use App\Http\Requests\Parking\HistoryRequest;
@@ -22,6 +23,7 @@ use App\Http\Resources\ParkingTicketResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 
 class ParkingController extends Controller
 {
@@ -113,18 +115,34 @@ class ParkingController extends Controller
         }
     }
 
-    public function current(Request $request): JsonResponse
+    public function current(CurrentTicketsRequest $request): JsonResponse
     {
         try {
-            $parkingLotId = $request->get('parking_lot_id') ? (int)$request->get('parking_lot_id') : null;
-            $tickets = $this->getCurrentVehiclesAction->execute($parkingLotId);
-            
-            // Asegurar que los tickets tengan la información del vehículo cargada
-            $ticketsWithRelations = collect($tickets)->map(function ($ticket) {
-                // Recargar el ticket con relaciones para asegurar que el resource tenga acceso
-                return $this->parkingTicketRepository->findById($ticket->getId());
-            })->filter();
-            
+            $tickets = $this->getCurrentVehiclesAction->execute(
+                $request->getParkingLotId(),
+                $request->getFilters(),
+                $request->getSearch(),
+                $request->shouldPaginate(),
+                $request->getPerPage()
+            );
+
+            if ($request->shouldPaginate()) {
+                $paginator = $tickets;
+                $ticketsWithRelations = $this->hydrateTickets($paginator->items());
+
+                return response()->json([
+                    'data' => ParkingTicketResource::collection($ticketsWithRelations),
+                    'meta' => [
+                        'current_page' => $paginator->currentPage(),
+                        'last_page' => $paginator->lastPage(),
+                        'per_page' => $paginator->perPage(),
+                        'total' => $paginator->total(),
+                    ],
+                ]);
+            }
+
+            $ticketsWithRelations = $this->hydrateTickets($tickets);
+
             return response()->json([
                 'data' => ParkingTicketResource::collection($ticketsWithRelations),
             ]);
@@ -143,11 +161,7 @@ class ParkingController extends Controller
             $perPage = $request->get('per_page', 15);
             $paginator = $this->getHistoryAction->execute($filters, true, $perPage);
             
-            // Convertir modelos a entidades del dominio con relaciones cargadas
-            $tickets = collect($paginator->items())->map(function ($model) {
-                // El modelo ya tiene las relaciones cargadas, usar findById que carga relaciones
-                return $this->parkingTicketRepository->findById($model->id);
-            })->filter();
+            $tickets = $this->hydrateTickets($paginator->items());
             
             return response()->json([
                 'data' => ParkingTicketResource::collection($tickets),
@@ -247,7 +261,7 @@ class ParkingController extends Controller
 
             // Crear un ticket temporal con la hora de salida actual para calcular el precio
             // Usar el método calculatePrice directamente con el tiempo actual
-            $exitTime = date('Y-m-d H:i:s');
+            $exitTime = now()->format('Y-m-d H:i:s');
             $entryTimestamp = strtotime($ticket->getEntryTime());
             $exitTimestamp = strtotime($exitTime);
             $totalSeconds = $exitTimestamp - $entryTimestamp;
@@ -275,7 +289,7 @@ class ParkingController extends Controller
             $totalAmount = round($price, 2);
 
             // Obtener la tarifa aplicada (diurna o nocturna según la hora actual)
-            $currentTime = date('H:i:s');
+            $currentTime = now()->format('H:i:s');
             $hourlyRateApplied = $parkingLot->isDayTime($currentTime) 
                 ? $parkingLot->getHourlyRateDay() 
                 : $parkingLot->getHourlyRateNight();
@@ -287,7 +301,7 @@ class ParkingController extends Controller
                     'hourly_rate_applied' => $hourlyRateApplied,
                     'total_amount' => round($totalAmount, 2),
                     'entry_time' => $ticket->getEntryTime(),
-                    'calculated_at' => date('Y-m-d H:i:s'),
+                    'calculated_at' => now()->format('Y-m-d H:i:s'),
                 ],
             ]);
         } catch (\Exception $e) {
@@ -320,6 +334,52 @@ class ParkingController extends Controller
         // Si es noche, el próximo cambio es al inicio del día siguiente
         $nextDayStart = strtotime($currentDate . ' ' . $lot->getDayStartTime() . ' +1 day');
         return $nextDayStart;
+    }
+
+    /**
+     * Obtiene estadísticas optimizadas del dashboard
+     * Solo retorna números sin cargar entidades completas
+     */
+    public function dashboardStats(Request $request): JsonResponse
+    {
+        try {
+            $stats = $this->parkingTicketRepository->getDashboardStats();
+            
+            // Obtener total de espacios de estacionamientos activos
+            $activeLots = $this->parkingLotRepository->all(['is_active' => true]);
+            $totalSpots = collect($activeLots)->sum(fn($lot) => $lot->getTotalSpots());
+            
+            // Calcular tasa de ocupación
+            $occupancyRate = $totalSpots > 0 
+                ? round(($stats['active_vehicles'] / $totalSpots) * 100) 
+                : 0;
+            
+            return response()->json([
+                'data' => [
+                    'active_vehicles' => $stats['active_vehicles'],
+                    'total_revenue' => $stats['total_revenue'],
+                    'total_tickets' => $stats['total_tickets'],
+                    'occupancy_rate' => $occupancyRate,
+                    'total_spots' => $totalSpots,
+                    'week_occupancy' => $stats['week_occupancy'],
+                    'week_revenue' => $stats['week_revenue'],
+                    'week_days' => $stats['week_days']
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function hydrateTickets(iterable $items): Collection
+    {
+        return collect($items)->map(function ($item) {
+            $ticketId = method_exists($item, 'getId') ? $item->getId() : $item->id;
+
+            return $this->parkingTicketRepository->findById($ticketId);
+        })->filter();
     }
 }
 

@@ -40,7 +40,7 @@ class ProcessPaymentUseCase
             $this->parkingTicketRepository->update($ticket->getId(), [
                 'is_paid' => true,
                 'payment_method' => $dto->paymentMethod,
-                'payment_time' => date('Y-m-d H:i:s'),
+                'payment_time' => now()->format('Y-m-d H:i:s'),
             ]);
 
             return $this->parkingTicketRepository->findById($ticket->getId());

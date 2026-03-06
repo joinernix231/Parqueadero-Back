@@ -35,3 +35,4 @@ class CreateVehiclesTable extends Migration
 
 
 
+

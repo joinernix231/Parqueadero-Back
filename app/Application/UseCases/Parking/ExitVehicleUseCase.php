@@ -8,6 +8,7 @@ use App\Domain\Repositories\ParkingLotRepositoryInterface;
 use App\Domain\Repositories\ParkingSpotRepositoryInterface;
 use App\Domain\Repositories\ParkingTicketRepositoryInterface;
 use App\Domain\Repositories\VehicleRepositoryInterface;
+use App\Domain\Services\DateTimeService;
 use App\Domain\Services\PricingService;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,8 @@ class ExitVehicleUseCase
         private ParkingLotRepositoryInterface $parkingLotRepository,
         private ParkingSpotRepositoryInterface $parkingSpotRepository,
         private VehicleRepositoryInterface $vehicleRepository,
-        private PricingService $pricingService
+        private PricingService $pricingService,
+        private DateTimeService $dateTimeService
     ) {
     }
 
@@ -42,7 +44,8 @@ class ExitVehicleUseCase
             }
 
             // Registrar salida
-            $exitTime = $dto->exitTime ?? date('Y-m-d H:i:s');
+            // Normalizar exit_time de UTC a zona horaria local si viene del frontend
+            $exitTime = $this->dateTimeService->normalizeFromUtc($dto->exitTime);
             $ticket->setExitTime($exitTime);
 
             // Calcular horas y precio
