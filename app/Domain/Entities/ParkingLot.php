@@ -88,16 +88,16 @@ class ParkingLot
      */
     public function isDayTime(string $time): bool
     {
-        $timeHour = (int) date('H', strtotime($time));
-        $dayStartHour = (int) date('H', strtotime($this->dayStartTime));
-        $dayEndHour = (int) date('H', strtotime($this->dayEndTime));
+        $t     = substr($time, 0, 5);
+        $start = substr($this->dayStartTime, 0, 5);
+        $end   = substr($this->dayEndTime, 0, 5);
 
-        if ($dayStartHour < $dayEndHour) {
-            return $timeHour >= $dayStartHour && $timeHour < $dayEndHour;
+        if ($start < $end) {
+            return $t >= $start && $t < $end;
         }
 
-        // Si cruza medianoche
-        return $timeHour >= $dayStartHour || $timeHour < $dayEndHour;
+        // Overnight schedule (e.g. 22:00 – 06:00)
+        return $t >= $start || $t < $end;
     }
 
     public function setId(int $id): void

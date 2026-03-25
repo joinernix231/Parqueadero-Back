@@ -3,8 +3,6 @@
 namespace App\Domain\Criteria;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Str;
 
 /**
  * Modern Filter Criteria System

@@ -27,7 +27,6 @@ class ExitVehicleUseCase
     public function execute(ExitVehicleDTO $dto, int $guardId): ParkingTicket
     {
         return DB::transaction(function () use ($dto, $guardId) {
-            // Obtener ticket
             $ticket = $this->getTicket($dto);
             if (!$ticket) {
                 throw new \Exception('Ticket no encontrado');
@@ -36,14 +35,13 @@ class ExitVehicleUseCase
             if (!$ticket->isActive()) {
                 throw new \Exception('El ticket ya tiene salida registrada');
             }
-
-            // Obtener estacionamiento
             $parkingLot = $this->parkingLotRepository->findById($ticket->getParkingLotId());
             if (!$parkingLot) {
                 throw new \Exception('Estacionamiento no encontrado');
             }
 
-            // Registrar salida
+
+
             // Normalizar exit_time de UTC a zona horaria local si viene del frontend
             $exitTime = $this->dateTimeService->normalizeFromUtc($dto->exitTime);
             $ticket->setExitTime($exitTime);
@@ -51,13 +49,18 @@ class ExitVehicleUseCase
             // Calcular horas y precio
             $totalHours = $this->pricingService->calculateTotalHours($ticket);
             $totalAmount = $this->pricingService->calculatePrice($ticket, $parkingLot);
+            $exitHour = $this->dateTimeService->createCarbonFromLocal($exitTime)->format('H:i');
+            $hourlyRateApplied = $parkingLot->isDayTime($exitHour)
+                ? $parkingLot->getHourlyRateDay()
+                : $parkingLot->getHourlyRateNight();
 
             // Actualizar ticket
             $this->parkingTicketRepository->update($ticket->getId(), [
-                'exit_time' => $exitTime,
-                'exit_guard_id' => $guardId,
-                'total_hours' => $totalHours,
-                'total_amount' => $totalAmount,
+                'exit_time'            => $exitTime,
+                'exit_guard_id'        => $guardId,
+                'total_hours'          => $totalHours,
+                'hourly_rate_applied'  => $hourlyRateApplied,
+                'total_amount'         => $totalAmount,
             ]);
 
             // Liberar espacio

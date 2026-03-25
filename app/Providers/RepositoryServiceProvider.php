@@ -35,6 +35,11 @@ class RepositoryServiceProvider extends ServiceProvider
             \App\Domain\Repositories\ParkingTicketRepositoryInterface::class,
             \App\Infrastructure\Repositories\EloquentParkingTicketRepository::class
         );
+
+        $this->app->bind(
+            \App\Domain\Repositories\ParkingTicketStatsRepositoryInterface::class,
+            \App\Infrastructure\Repositories\EloquentParkingTicketRepository::class
+        );
     }
 
     /**

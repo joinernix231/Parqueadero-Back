@@ -4,12 +4,13 @@ namespace App\Infrastructure\Repositories;
 
 use App\Domain\Entities\ParkingTicket;
 use App\Domain\Repositories\ParkingTicketRepositoryInterface;
+use App\Domain\Repositories\ParkingTicketStatsRepositoryInterface;
 use App\Infrastructure\Repositories\Traits\AppliesFilters;
 use App\Models\ParkingTicket as ParkingTicketModel;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
-class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterface
+class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterface, ParkingTicketStatsRepositoryInterface
 {
     use AppliesFilters;
 
@@ -75,14 +76,10 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
     public function paginateHistory(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         $query = ParkingTicketModel::with(['vehicle', 'parkingSpot', 'parkingLot']);
-        
-        // Convertir filtros del request al formato correcto
+
         $convertedFilters = $this->convertRequestFilters($filters);
-        
-        // Aplicar filtros usando el sistema de criteria
         $query = $this->applyFilters($query, $convertedFilters);
 
-        // Manejar filtros especiales de status
         if (isset($filters['status'])) {
             if ($filters['status'] === 'active') {
                 $query->whereNull('exit_time');
@@ -91,7 +88,13 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             }
         }
 
-        return $query->orderBy('entry_time', 'desc')->paginate($perPage);
+        $paginator = $query->orderBy('entry_time', 'desc')->paginate($perPage);
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+        );
+
+        return $paginator;
     }
 
     protected function getFilterableFields(): array
@@ -174,9 +177,15 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
 
     public function paginateCurrentParkedVehicles(int $perPage = 15, ?int $parkingLotId = null, array|string|null $filters = [], ?string $search = null): LengthAwarePaginator
     {
-        return $this->buildCurrentParkedVehiclesQuery($parkingLotId, $filters, $search)
+        $paginator = $this->buildCurrentParkedVehiclesQuery($parkingLotId, $filters, $search)
             ->orderBy('entry_time', 'desc')
             ->paginate($perPage);
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+        );
+
+        return $paginator;
     }
 
     public function create(array $data): ParkingTicket
@@ -190,88 +199,35 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         return ParkingTicketModel::where('id', $id)->update($data) > 0;
     }
 
-    public function getDashboardStats(): array
+    public function getDashboardRawStats(): array
     {
-        // Usar agregaciones SQL para obtener solo números - MUY OPTIMIZADO
-        $activeVehicles = ParkingTicketModel::whereNull('exit_time')->count();
-        
-        // Total de ingresos de tickets con salida (el pago se hace automáticamente al dar salida)
-        $totalRevenue = ParkingTicketModel::whereNotNull('exit_time')
-            ->whereNotNull('total_amount')
-            ->sum('total_amount');
-        
-        // Total de tickets con salida
-        $totalTickets = ParkingTicketModel::whereNotNull('exit_time')->count();
-        
-        // Estadísticas semanales para gráficas (últimos 7 días)
         $weekAgo = now()->subDays(7);
-        
-        // Ocupación diaria: contar tickets que estaban activos cada día de la semana
-        // Un ticket está activo un día si entró ese día y aún no ha salido, o si salió después de ese día
-        $occupancyByDay = ParkingTicketModel::selectRaw('
-                DAYOFWEEK(DATE(entry_time)) as day_of_week,
-                COUNT(*) as count
-            ')
+
+        $occupancyByDow = ParkingTicketModel::selectRaw('DAYOFWEEK(DATE(entry_time)) as dow, COUNT(*) as count')
             ->where('entry_time', '>=', $weekAgo)
-            ->where(function($query) {
-                // Tickets que aún están activos (sin salida)
-                $query->whereNull('exit_time')
-                    // O tickets que salieron después de la semana (estaban activos durante la semana)
-                    ->orWhere('exit_time', '>=', now()->subDays(7));
+            ->where(function ($q) {
+                $q->whereNull('exit_time')->orWhere('exit_time', '>=', now()->subDays(7));
             })
-            ->groupBy('day_of_week')
+            ->groupBy('dow')
             ->get()
-            ->pluck('count', 'day_of_week')
+            ->pluck('count', 'dow')
             ->toArray();
-        
-        // Ingresos diarios: sumar ingresos de tickets que salieron cada día de la semana
-        $revenueByDay = ParkingTicketModel::selectRaw('
-                DAYOFWEEK(DATE(exit_time)) as day_of_week,
-                COALESCE(SUM(total_amount), 0) as revenue
-            ')
+
+        $revenueByDow = ParkingTicketModel::selectRaw('DAYOFWEEK(DATE(exit_time)) as dow, COALESCE(SUM(total_amount), 0) as revenue')
             ->where('exit_time', '>=', $weekAgo)
             ->whereNotNull('exit_time')
             ->whereNotNull('total_amount')
-            ->groupBy('day_of_week')
+            ->groupBy('dow')
             ->get()
-            ->pluck('revenue', 'day_of_week')
+            ->pluck('revenue', 'dow')
             ->toArray();
-        
-        // Mapear días de la semana
-        // MySQL DAYOFWEEK: 1=Domingo, 2=Lunes, 3=Martes, 4=Miércoles, 5=Jueves, 6=Viernes, 7=Sábado
-        // Necesitamos: 0=Lunes, 1=Martes, 2=Miércoles, 3=Jueves, 4=Viernes, 5=Sábado, 6=Domingo
-        $days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-        $occupancy = array_fill(0, 7, 0);
-        $revenue = array_fill(0, 7, 0.0);
-        
-        // Función para convertir DAYOFWEEK de MySQL a índice 0-6 (0=Lunes)
-        $convertDayOfWeek = function($mysqlDay) {
-            // MySQL: 1=Dom, 2=Lun, 3=Mar, 4=Mié, 5=Jue, 6=Vie, 7=Sáb
-            // Array:  0=Lun, 1=Mar, 2=Mié, 3=Jue, 4=Vie, 5=Sáb, 6=Dom
-            return ($mysqlDay == 1) ? 6 : ($mysqlDay - 2);
-        };
-        
-        foreach ($occupancyByDay as $dayOfWeek => $count) {
-            $index = $convertDayOfWeek((int) $dayOfWeek);
-            if ($index >= 0 && $index < 7) {
-                $occupancy[$index] = (int) $count;
-            }
-        }
-        
-        foreach ($revenueByDay as $dayOfWeek => $revenueAmount) {
-            $index = $convertDayOfWeek((int) $dayOfWeek);
-            if ($index >= 0 && $index < 7) {
-                $revenue[$index] = (float) $revenueAmount;
-            }
-        }
-        
+
         return [
-            'active_vehicles' => $activeVehicles,
-            'total_revenue' => (float) $totalRevenue,
-            'total_tickets' => $totalTickets,
-            'week_occupancy' => $occupancy,
-            'week_revenue' => $revenue,
-            'week_days' => $days
+            'active_vehicles' => ParkingTicketModel::whereNull('exit_time')->count(),
+            'total_revenue'   => (float) ParkingTicketModel::whereNotNull('exit_time')->whereNotNull('total_amount')->sum('total_amount'),
+            'total_tickets'   => ParkingTicketModel::whereNotNull('exit_time')->count(),
+            'occupancy_by_dow' => $occupancyByDow,
+            'revenue_by_dow'   => $revenueByDow,
         ];
     }
 
@@ -313,18 +269,17 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
 
     private function toEntity(ParkingTicketModel $model): ParkingTicket
     {
-        // Formatear fechas en formato 'Y-m-d H:i:s' para consistencia con la zona horaria local
-        // Las fechas en la BD ya están en la zona horaria local configurada
-        $formatDate = function($date) {
-            if (!$date) return null;
-            if ($date instanceof \DateTime || $date instanceof \Carbon\Carbon) {
+        $formatDate = static function ($date): ?string {
+            if (!$date) {
+                return null;
+            }
+            if ($date instanceof \DateTimeInterface) {
                 return $date->format('Y-m-d H:i:s');
             }
-            // Si ya es string, retornarlo tal cual (asumiendo que ya está en formato correcto)
-            return $date;
+            return (string) $date;
         };
 
-        return new ParkingTicket(
+        $ticket = new ParkingTicket(
             id: $model->id,
             vehicleId: $model->vehicle_id,
             parkingSpotId: $model->parking_spot_id,
@@ -342,6 +297,46 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             createdAt: $formatDate($model->created_at),
             updatedAt: $formatDate($model->updated_at)
         );
+
+        if ($model->relationLoaded('vehicle') && $model->vehicle) {
+            $v = $model->vehicle;
+            $ticket->setVehicle(new \App\Domain\Entities\Vehicle(
+                id: $v->id,
+                plate: $v->plate,
+                ownerName: $v->owner_name,
+                phone: $v->phone,
+                vehicleType: $v->vehicle_type,
+            ));
+        }
+
+        if ($model->relationLoaded('parkingLot') && $model->parkingLot) {
+            $pl = $model->parkingLot;
+            $ticket->setParkingLot(new \App\Domain\Entities\ParkingLot(
+                id: $pl->id,
+                name: $pl->name,
+                address: $pl->address,
+                totalSpots: (int) $pl->total_spots,
+                hourlyRateDay: (float) $pl->hourly_rate_day,
+                hourlyRateNight: (float) $pl->hourly_rate_night,
+                dayStartTime: $pl->day_start_time->format('H:i'),
+                dayEndTime: $pl->day_end_time->format('H:i'),
+                isActive: (bool) $pl->is_active,
+            ));
+        }
+
+        if ($model->relationLoaded('parkingSpot') && $model->parkingSpot) {
+            $ps = $model->parkingSpot;
+            $ticket->setParkingSpot(new \App\Domain\Entities\ParkingSpot(
+                id: $ps->id,
+                parkingLotId: $ps->parking_lot_id,
+                spotNumber: $ps->spot_number,
+                spotType: $ps->spot_type,
+                isOccupied: (bool) $ps->is_occupied,
+                isActive: (bool) $ps->is_active,
+            ));
+        }
+
+        return $ticket;
     }
 }
 

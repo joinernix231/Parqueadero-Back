@@ -26,11 +26,5 @@ interface ParkingTicketRepositoryInterface
     public function create(array $data): ParkingTicket;
 
     public function update(int $id, array $data): bool;
-
-    /**
-     * Obtiene estadísticas del dashboard usando agregaciones SQL optimizadas
-     * Retorna solo números sin cargar entidades completas
-     */
-    public function getDashboardStats(): array;
 }
 

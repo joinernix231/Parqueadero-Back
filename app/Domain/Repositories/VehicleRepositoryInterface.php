@@ -18,8 +18,6 @@ interface VehicleRepositoryInterface
     public function create(array $data): Vehicle;
 
     public function update(int $id, array $data): bool;
-
-    public function delete(int $id): bool;
 }
 
 

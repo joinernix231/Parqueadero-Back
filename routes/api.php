@@ -1,65 +1,55 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\ParkingController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\ParkingEntryController;
+use App\Http\Controllers\Api\ParkingExitController;
+use App\Http\Controllers\Api\ParkingPaymentController;
+use App\Http\Controllers\Api\ParkingQueryController;
+use App\Http\Controllers\Api\ParkingReceiptController;
 use App\Http\Controllers\Api\ParkingLotController;
 use App\Http\Controllers\Api\ParkingSpotController;
 use App\Http\Controllers\Api\VehicleController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
-
-// Rutas públicas
 Route::post('/login', [AuthController::class, 'login']);
 
-// Rutas protegidas
 Route::middleware('auth:sanctum')->group(function () {
-    // Autenticación
+    // Auth
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/me', [AuthController::class, 'me']);
 
-    // Vehículos
+    // Vehicles
     Route::get('/vehicles', [VehicleController::class, 'index']);
     Route::post('/vehicles', [VehicleController::class, 'store']);
     Route::get('/vehicles/search-by-plate', [VehicleController::class, 'searchByPlate']);
     Route::get('/vehicles/{id}', [VehicleController::class, 'show']);
 
-    // Estacionamientos
+    // Parking lots
     Route::get('/parking-lots', [ParkingLotController::class, 'index']);
     Route::post('/parking-lots', [ParkingLotController::class, 'store']);
     Route::get('/parking-lots/{id}', [ParkingLotController::class, 'show']);
     Route::put('/parking-lots/{id}', [ParkingLotController::class, 'update']);
 
-    // Espacios
+    // Parking spots
     Route::get('/parking-spots/available', [ParkingSpotController::class, 'available']);
 
-    // Parqueadero
-    Route::post('/parking/entry', [ParkingController::class, 'storeEntry']);
-    Route::post('/parking/exit', [ParkingController::class, 'storeExit']);
-    Route::post('/parking/payment', [ParkingController::class, 'processPayment']);
-    Route::get('/parking/tickets/{id}', [ParkingController::class, 'show']);
-    Route::get('/parking/tickets/{id}/calculate-price', [ParkingController::class, 'calculatePrice']);
-    Route::get('/parking/tickets/{id}/receipt/entry', [ParkingController::class, 'downloadEntryReceipt']);
-    Route::get('/parking/tickets/{id}/receipt/exit', [ParkingController::class, 'downloadExitReceipt']);
-    Route::get('/parking/tickets/by-plate/{plate}', [ParkingController::class, 'findByPlate']);
-    Route::get('/parking/current', [ParkingController::class, 'current']);
-    Route::get('/parking/history', [ParkingController::class, 'history']);
-    Route::get('/dashboard/stats', [ParkingController::class, 'dashboardStats']);
+    // Parking operations
+    Route::post('/parking/entry', [ParkingEntryController::class, 'store']);
+    Route::post('/parking/exit', [ParkingExitController::class, 'store']);
+    Route::post('/parking/payment', [ParkingPaymentController::class, 'process']);
 
-    // Usuario autenticado
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::get('/user', function (Request $request) {
-        $userEntity = app(\App\Domain\Repositories\UserRepositoryInterface::class)
-            ->findById($request->user()->id);
-        return new \App\Http\Resources\UserResource($userEntity);
-    });
+    // Ticket queries
+    Route::get('/parking/tickets/{id}', [ParkingQueryController::class, 'show']);
+    Route::get('/parking/tickets/{id}/calculate-price', [ParkingPaymentController::class, 'calculatePrice']);
+    Route::get('/parking/tickets/by-plate/{plate}', [ParkingQueryController::class, 'findByPlate']);
+    Route::get('/parking/current', [ParkingQueryController::class, 'current']);
+    Route::get('/parking/history', [ParkingQueryController::class, 'history']);
+
+    // Receipts
+    Route::get('/parking/tickets/{id}/receipt/entry', [ParkingReceiptController::class, 'downloadEntry']);
+    Route::get('/parking/tickets/{id}/receipt/exit', [ParkingReceiptController::class, 'downloadExit']);
+
+    // Dashboard
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats']);
 });

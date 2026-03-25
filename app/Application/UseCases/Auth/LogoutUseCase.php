@@ -3,18 +3,14 @@
 namespace App\Application\UseCases\Auth;
 
 use App\Domain\Entities\User;
+use App\Domain\Repositories\UserRepositoryInterface;
 
 class LogoutUseCase
 {
+    public function __construct(private UserRepositoryInterface $userRepository) {}
+
     public function execute(User $user): void
     {
-        // Revocar todos los tokens del usuario
-        $eloquentUser = \App\Models\User::find($user->getId());
-        $eloquentUser->tokens()->delete();
+        $this->userRepository->revokeAllTokens($user->getId());
     }
 }
-
-
-
-
-

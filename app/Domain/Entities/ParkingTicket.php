@@ -2,10 +2,12 @@
 
 namespace App\Domain\Entities;
 
-use Carbon\Carbon;
-
 class ParkingTicket
 {
+    private ?Vehicle $vehicle = null;
+    private ?ParkingLot $parkingLot = null;
+    private ?ParkingSpot $parkingSpot = null;
+
     public function __construct(
         private ?int $id = null,
         private int $vehicleId = 0,
@@ -24,6 +26,36 @@ class ParkingTicket
         private ?string $createdAt = null,
         private ?string $updatedAt = null
     ) {
+    }
+
+    public function getVehicle(): ?Vehicle
+    {
+        return $this->vehicle;
+    }
+
+    public function getParkingLot(): ?ParkingLot
+    {
+        return $this->parkingLot;
+    }
+
+    public function getParkingSpot(): ?ParkingSpot
+    {
+        return $this->parkingSpot;
+    }
+
+    public function setVehicle(?Vehicle $vehicle): void
+    {
+        $this->vehicle = $vehicle;
+    }
+
+    public function setParkingLot(?ParkingLot $parkingLot): void
+    {
+        $this->parkingLot = $parkingLot;
+    }
+
+    public function setParkingSpot(?ParkingSpot $parkingSpot): void
+    {
+        $this->parkingSpot = $parkingSpot;
     }
 
     public function getId(): ?int
@@ -111,100 +143,6 @@ class ParkingTicket
         return $this->exitTime === null;
     }
 
-    /**
-     * Calcula las horas totales entre entry_time y exit_time
-     */
-    public function calculateTotalHours(): float
-    {
-        $timezone = config('app.timezone', 'America/Bogota');
-        
-        if ($this->exitTime === null) {
-            // Si no hay salida, calcular hasta ahora
-            $exitTime = Carbon::now($timezone)->format('Y-m-d H:i:s');
-        } else {
-            $exitTime = $this->exitTime;
-        }
-
-        // Parsear fechas usando Carbon con la zona horaria correcta
-        $entryCarbon = Carbon::parse($this->entryTime, $timezone);
-        $exitCarbon = Carbon::parse($exitTime, $timezone);
-
-        if ($exitCarbon->isBefore($entryCarbon)) {
-            throw new \InvalidArgumentException("Exit time cannot be before entry time");
-        }
-
-        $hours = $entryCarbon->diffInHours($exitCarbon, true);
-        return round($hours, 2);
-    }
-
-    /**
-     * Calcula el precio basado en las tarifas del estacionamiento
-     * Requiere que se pase la entidad ParkingLot con las tarifas
-     */
-    public function calculatePrice(ParkingLot $lot): float
-    {
-        if ($this->exitTime === null) {
-            throw new \RuntimeException("Cannot calculate price without exit time");
-        }
-
-        $timezone = config('app.timezone', 'America/Bogota');
-        
-        // Parsear fechas usando Carbon con la zona horaria correcta
-        $entryCarbon = Carbon::parse($this->entryTime, $timezone);
-        $exitCarbon = Carbon::parse($this->exitTime, $timezone);
-
-        if ($exitCarbon->isBefore($entryCarbon)) {
-            throw new \InvalidArgumentException("Exit time cannot be before entry time");
-        }
-
-        $price = 0.0;
-        $currentCarbon = $entryCarbon->copy();
-
-        while ($currentCarbon->isBefore($exitCarbon)) {
-            $currentTime = $currentCarbon->format('H:i:s');
-            $isDayTime = $lot->isDayTime($currentTime);
-
-            // Calcular horas hasta el próximo cambio o hasta la salida
-            $nextChangeCarbon = $this->getNextRateChangeCarbon($currentCarbon, $lot);
-            $segmentEndCarbon = $nextChangeCarbon->isBefore($exitCarbon) ? $nextChangeCarbon : $exitCarbon;
-            $segmentHours = $currentCarbon->diffInHours($segmentEndCarbon, true);
-
-            $rate = $isDayTime ? $lot->getHourlyRateDay() : $lot->getHourlyRateNight();
-            $price += $segmentHours * $rate;
-
-            $currentCarbon = $segmentEndCarbon;
-        }
-
-        return round($price, 2);
-    }
-
-    /**
-     * Obtiene el Carbon del próximo cambio de tarifa
-     */
-    private function getNextRateChangeCarbon(Carbon $currentCarbon, ParkingLot $lot): Carbon
-    {
-        $timezone = config('app.timezone', 'America/Bogota');
-        $currentDate = $currentCarbon->format('Y-m-d');
-        
-        $dayStartCarbon = Carbon::parse($currentDate . ' ' . $lot->getDayStartTime(), $timezone);
-        $dayEndCarbon = Carbon::parse($currentDate . ' ' . $lot->getDayEndTime(), $timezone);
-
-        // Si dayEnd es antes de dayStart, significa que cruza medianoche
-        if ($dayEndCarbon->isBefore($dayStartCarbon)) {
-            $dayEndCarbon = Carbon::parse($currentDate . ' ' . $lot->getDayEndTime(), $timezone)->addDay();
-        }
-
-        $isCurrentlyDayTime = $lot->isDayTime($currentCarbon->format('H:i:s'));
-
-        if ($isCurrentlyDayTime) {
-            return $dayEndCarbon;
-        }
-
-        // Si es noche, el próximo cambio es al inicio del día siguiente
-        $nextDayStart = Carbon::parse($currentDate . ' ' . $lot->getDayStartTime(), $timezone)->addDay();
-        return $nextDayStart;
-    }
-
     public function setId(int $id): void
     {
         $this->id = $id;
@@ -278,7 +216,3 @@ class ParkingTicket
         $this->paymentTime = $paymentTime;
     }
 }
-
-
-
-

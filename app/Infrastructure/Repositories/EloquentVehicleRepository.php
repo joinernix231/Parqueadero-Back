@@ -37,7 +37,13 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         $query = VehicleModel::query();
         $query = $this->applyFilters($query, $filters);
 
-        return $query->paginate($perPage);
+        $paginator = $query->paginate($perPage);
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+        );
+
+        return $paginator;
     }
 
     protected function getFilterableFields(): array

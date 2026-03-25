@@ -2,7 +2,7 @@
 
 namespace App\Application\UseCases\Parking;
 
-use App\Application\Actions\Vehicle\CreateVehicleAction;
+use App\Application\UseCases\Vehicle\RegisterVehicleUseCase;
 use App\Domain\DTOs\EntryVehicleDTO;
 use App\Domain\Entities\ParkingTicket;
 use App\Domain\Entities\Vehicle;
@@ -11,7 +11,6 @@ use App\Domain\Repositories\ParkingSpotRepositoryInterface;
 use App\Domain\Repositories\ParkingTicketRepositoryInterface;
 use App\Domain\Repositories\VehicleRepositoryInterface;
 use App\Domain\Services\DateTimeService;
-use App\Domain\Services\ParkingAvailabilityService;
 use App\Domain\Services\VehicleValidationService;
 use Illuminate\Support\Facades\DB;
 
@@ -23,8 +22,7 @@ class EntryVehicleUseCase
         private ParkingSpotRepositoryInterface $parkingSpotRepository,
         private ParkingTicketRepositoryInterface $parkingTicketRepository,
         private VehicleValidationService $vehicleValidationService,
-        private ParkingAvailabilityService $availabilityService,
-        private CreateVehicleAction $createVehicleAction,
+        private RegisterVehicleUseCase $registerVehicleUseCase,
         private DateTimeService $dateTimeService
     ) {
     }
@@ -57,7 +55,7 @@ class EntryVehicleUseCase
                 throw new \Exception('Espacio no encontrado');
             }
 
-            if (!$this->availabilityService->canOccupySpot($parkingSpot)) {
+            if (!$parkingSpot->isAvailable()) {
                 throw new \Exception('El espacio no está disponible');
             }
 
@@ -125,7 +123,7 @@ class EntryVehicleUseCase
                     throw new \Exception('Se requieren los datos completos del vehículo (placa, propietario y teléfono)');
                 }
                 
-                return $this->createVehicleAction->execute($vehicleDto);
+                return $this->registerVehicleUseCase->execute($vehicleDto);
             }
 
             throw new \Exception('Vehículo no encontrado. Se requieren los datos del vehículo para registrarlo.');

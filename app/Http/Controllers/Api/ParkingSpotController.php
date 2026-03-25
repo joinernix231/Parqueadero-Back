@@ -6,6 +6,7 @@ use App\Application\UseCases\ParkingLot\GetAvailableSpotsUseCase;
 use App\Http\Resources\ParkingSpotResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ParkingSpotController extends Controller
 {
@@ -19,19 +20,22 @@ class ParkingSpotController extends Controller
         try {
             $parkingLotId = $request->get('parking_lot_id');
             if (!$parkingLotId) {
-                return response()->json([
-                    'message' => 'parking_lot_id es requerido',
-                ], 422);
+                return $this->sendError(
+                    'parking_lot_id es requerido',
+                    422
+                );
             }
 
             $spots = $this->getAvailableSpotsUseCase->execute($parkingLotId);
-            return response()->json([
-                'data' => ParkingSpotResource::collection($spots),
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 500);
+            return $this->sendResponse(
+                ParkingSpotResource::collection($spots),
+                'Espacios disponibles obtenidos correctamente'
+            );
+        } catch (Throwable $e) {
+            return $this->sendError(
+                $e->getMessage(),
+                500
+            );
         }
     }
 }

@@ -27,20 +27,15 @@ class DateTimeService
         }
 
         try {
-            // Carbon puede parsear automáticamente fechas ISO 8601 con Z (UTC)
             $carbon = Carbon::parse($dateTime);
-            
-            // Si la fecha viene en UTC (tiene Z al final), convertir a zona horaria local
+
+            // Fechas con zona UTC explícita se convierten; sin zona horaria se tratan como locales.
             if (str_ends_with($dateTime, 'Z') || str_contains($dateTime, '+00:00')) {
-                $carbon = $carbon->setTimezone($this->getTimezone());
-            } else {
-                // Si no tiene indicador de zona horaria, asumir que ya está en la zona local
                 $carbon = $carbon->setTimezone($this->getTimezone());
             }
 
             return $carbon->format('Y-m-d H:i:s');
         } catch (\Exception $e) {
-            // Si falla el parseo, usar la fecha actual
             return now($this->getTimezone())->format('Y-m-d H:i:s');
         }
     }

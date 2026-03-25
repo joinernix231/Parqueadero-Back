@@ -2,34 +2,36 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Application\Actions\Auth\LoginAction;
-use App\Application\Actions\Auth\LogoutAction;
+use App\Application\UseCases\Auth\LoginUseCase;
+use App\Application\UseCases\Auth\LogoutUseCase;
 use App\Domain\DTOs\LoginDTO;
 use App\Domain\Repositories\UserRepositoryInterface;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\AuthResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class AuthController extends Controller
 {
     public function __construct(
-        private LoginAction $loginAction,
-        private LogoutAction $logoutAction,
+        private LoginUseCase $loginUseCase,
+        private LogoutUseCase $logoutUseCase,
         private UserRepositoryInterface $userRepository
     ) {
     }
 
-    public function login(LoginRequest $request): JsonResponse|AuthResource
+    public function login(LoginRequest $request): JsonResponse
     {
         try {
             $dto = LoginDTO::fromArray($request->validated());
-            $result = $this->loginAction->execute($dto);
-            return new AuthResource($result);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 401);
+            $result = $this->loginUseCase->execute($dto);
+            return $this->sendResponse(
+                new AuthResource($result),
+                'Inicio de sesión exitoso'
+            );
+        } catch (Throwable $e) {
+            return $this->sendError($e->getMessage(), 401);
         }
     }
 
@@ -37,35 +39,26 @@ class AuthController extends Controller
     {
         try {
             $user = $this->userRepository->findById($request->user()->id);
-            $this->logoutAction->execute($user);
-            return response()->json([
-                'message' => 'Sesión cerrada exitosamente',
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 500);
+            $this->logoutUseCase->execute($user);
+            return $this->sendResponse(null, 'Sesión cerrada exitosamente');
+        } catch (Throwable $e) {
+            return $this->sendError($e->getMessage(), 500);
         }
     }
 
-    public function me(Request $request): JsonResponse|\App\Http\Resources\UserResource
+    public function me(Request $request): JsonResponse
     {
         try {
-            $userEntity = $this->userRepository->findById($request->user()->id);
-            if (!$userEntity) {
-                return response()->json([
-                    'message' => 'Usuario no encontrado',
-                ], 404);
+            $user = $this->userRepository->findById($request->user()->id);
+            if (!$user) {
+                return $this->sendError('Usuario no encontrado', 404);
             }
-            return new \App\Http\Resources\UserResource($userEntity);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => $e->getMessage(),
-            ], 401);
+            return $this->sendResponse(
+                new \App\Http\Resources\UserResource($user),
+                'Usuario autenticado recuperado correctamente'
+            );
+        } catch (Throwable $e) {
+            return $this->sendError($e->getMessage(), 401);
         }
     }
 }
-
-
-
-

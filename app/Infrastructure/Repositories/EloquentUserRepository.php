@@ -31,6 +31,16 @@ class EloquentUserRepository implements UserRepositoryInterface
         return UserModel::where('id', $id)->update($data) > 0;
     }
 
+    public function createApiToken(int $userId, string $name): string
+    {
+        return UserModel::findOrFail($userId)->createToken($name)->plainTextToken;
+    }
+
+    public function revokeAllTokens(int $userId): void
+    {
+        UserModel::findOrFail($userId)->tokens()->delete();
+    }
+
     private function toEntity(UserModel $model): User
     {
         // Get password directly from attributes since it's in hidden array
