@@ -90,7 +90,7 @@ jobs:
       - name: Run tests
         env:
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: php artisan test --no-interaction
+        run: php artisan test
 
       - name: Laravel optimize
         env:
