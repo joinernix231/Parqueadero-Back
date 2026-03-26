@@ -18,8 +18,3 @@ interface ParkingSpotRepositoryInterface
 
     public function create(array $data): ParkingSpot;
 }
-
-
-
-
-

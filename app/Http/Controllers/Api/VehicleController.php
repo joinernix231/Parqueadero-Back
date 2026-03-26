@@ -18,8 +18,7 @@ class VehicleController extends Controller
         private RegisterVehicleUseCase $registerVehicleUseCase,
         private FindVehicleByPlateUseCase $findVehicleByPlateUseCase,
         private VehicleRepositoryInterface $vehicleRepository
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -30,12 +29,12 @@ class VehicleController extends Controller
 
             return $this->sendResponse(
                 VehicleResource::collection(collect($paginator->items())),
-                'Vehículos obtenidos correctamente',
+                'Vehicles retrieved successfully',
                 [
                     'current_page' => $paginator->currentPage(),
-                    'last_page'    => $paginator->lastPage(),
-                    'per_page'     => $paginator->perPage(),
-                    'total'        => $paginator->total(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
                 ]
             );
         } catch (Throwable $e) {
@@ -48,7 +47,8 @@ class VehicleController extends Controller
         try {
             $dto = VehicleDTO::fromArray($request->validated());
             $vehicle = $this->registerVehicleUseCase->execute($dto);
-            return $this->sendResponse(new VehicleResource($vehicle), 'Vehículo creado correctamente');
+
+            return $this->sendResponse(new VehicleResource($vehicle), 'Vehicle created successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }
@@ -58,10 +58,11 @@ class VehicleController extends Controller
     {
         try {
             $vehicle = $this->vehicleRepository->findById($id);
-            if (!$vehicle) {
-                return $this->sendError('Vehículo no encontrado', 404);
+            if (! $vehicle) {
+                return $this->sendError('Vehicle not found', 404);
             }
-            return $this->sendResponse(new VehicleResource($vehicle), 'Vehículo obtenido correctamente');
+
+            return $this->sendResponse(new VehicleResource($vehicle), 'Vehicle retrieved successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -71,16 +72,16 @@ class VehicleController extends Controller
     {
         try {
             $plate = $request->get('plate');
-            if (!$plate) {
-                return $this->sendError('La placa es requerida', 422);
+            if (! $plate) {
+                return $this->sendError('License plate is required', 422);
             }
 
             $vehicle = $this->findVehicleByPlateUseCase->execute($plate);
-            if (!$vehicle) {
-                return $this->sendError('Vehículo no encontrado', 404);
+            if (! $vehicle) {
+                return $this->sendError('Vehicle not found', 404);
             }
 
-            return $this->sendResponse(new VehicleResource($vehicle), 'Vehículo obtenido correctamente');
+            return $this->sendResponse(new VehicleResource($vehicle), 'Vehicle retrieved successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }

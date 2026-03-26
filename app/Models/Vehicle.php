@@ -30,8 +30,3 @@ class Vehicle extends Model
         return $this->hasMany(ParkingTicket::class);
     }
 }
-
-
-
-
-

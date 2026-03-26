@@ -11,17 +11,12 @@ class FindVehicleByPlateUseCase
     public function __construct(
         private VehicleRepositoryInterface $vehicleRepository,
         private VehicleValidationService $validationService
-    ) {
-    }
+    ) {}
 
     public function execute(string $plate): ?Vehicle
     {
         $normalizedPlate = $this->validationService->normalizePlate($plate);
+
         return $this->vehicleRepository->findByPlate($normalizedPlate);
     }
 }
-
-
-
-
-

@@ -20,7 +20,7 @@ class ParkingSpotSeeder extends Seeder
             for ($i = 1; $i <= $lot->total_spots - 3; $i++) {
                 ParkingSpot::create([
                     'parking_lot_id' => $lot->id,
-                    'spot_number' => 'R' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                    'spot_number' => 'R'.str_pad($i, 3, '0', STR_PAD_LEFT),
                     'spot_type' => 'regular',
                     'is_occupied' => false,
                     'is_active' => true,
@@ -55,8 +55,3 @@ class ParkingSpotSeeder extends Seeder
         }
     }
 }
-
-
-
-
-

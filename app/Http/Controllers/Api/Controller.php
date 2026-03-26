@@ -9,9 +9,9 @@ use Illuminate\Http\JsonResponse;
 class Controller extends BaseController
 {
     /**
-     * Respuesta de éxito estándar.
+     * Standard success JSON response.
      */
-    protected function sendResponse(mixed $result = null, string $message = 'Operación exitosa', array $meta = []): JsonResponse
+    protected function sendResponse(mixed $result = null, string $message = 'Operation successful', array $meta = []): JsonResponse
     {
         return response()->json(
             ResponseUtil::makeResponse($message, $result, $meta)
@@ -19,7 +19,7 @@ class Controller extends BaseController
     }
 
     /**
-     * Respuesta de error estándar.
+     * Standard error JSON response.
      */
     protected function sendError(string $message, int $code = 400, array $errors = []): JsonResponse
     {
@@ -29,8 +29,3 @@ class Controller extends BaseController
         );
     }
 }
-
-
-
-
-

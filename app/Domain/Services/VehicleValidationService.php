@@ -23,7 +23,7 @@ class VehicleValidationService
         }
 
         // Validar que contenga solo letras y números
-        if (!preg_match('/^[A-Z0-9]+$/', $normalizedPlate)) {
+        if (! preg_match('/^[A-Z0-9]+$/', $normalizedPlate)) {
             return false;
         }
 
@@ -61,7 +61,7 @@ class VehicleValidationService
         // pero con longitud válida (5-7 caracteres)
         $letterCount = preg_match_all('/[A-Z]/', $normalizedPlate);
         $numberCount = preg_match_all('/[0-9]/', $normalizedPlate);
-        
+
         if ($letterCount >= 2 && $numberCount >= 2) {
             return true;
         }
@@ -77,4 +77,3 @@ class VehicleValidationService
         return strtoupper(str_replace([' ', '-'], '', trim($plate)));
     }
 }
-

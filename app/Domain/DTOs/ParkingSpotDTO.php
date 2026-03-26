@@ -11,8 +11,7 @@ class ParkingSpotDTO
         public readonly string $spotType = 'regular',
         public readonly bool $isOccupied = false,
         public readonly bool $isActive = true
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -38,8 +37,3 @@ class ParkingSpotDTO
         ];
     }
 }
-
-
-
-
-

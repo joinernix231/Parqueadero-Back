@@ -29,4 +29,3 @@ class GenerateEntryReceiptListener implements ShouldQueue
         GenerateEntryReceiptJob::dispatch($event->ticket->getId());
     }
 }
-

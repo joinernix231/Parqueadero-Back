@@ -6,11 +6,7 @@ use Exception;
 
 class InvalidPaymentAmountException extends Exception
 {
-    protected $message = 'El monto de pago no es válido';
+    protected $message = 'The payment amount is not valid';
+
     protected $code = 422;
 }
-
-
-
-
-

@@ -1,0 +1,98 @@
+name: CI
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+jobs:
+  config-check:
+    name: PSR & code style
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/php_install
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Check PSR autoload mapping
+        run: composer dump-autoload --strict-psr
+
+      - name: Laravel Pint (style check)
+        run: composer cs-check
+
+  tests:
+    name: PHPUnit
+    needs: [config-check]
+    runs-on: ubuntu-latest
+
+    env:
+      APP_ENV: testing
+      APP_DEBUG: true
+      APP_URL: http://localhost
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: parking_management_test
+      DB_USERNAME: root
+      DB_PASSWORD: ''
+      MAIL_MAILER: log
+      QUEUE_CONNECTION: sync
+
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+          MYSQL_DATABASE: parking_management_test
+        ports:
+          - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/php_install
+        with:
+          php-coverage: xdebug
+
+      - name: Copy .env
+        run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+      - name: Generate application key
+        run: php artisan key:generate --force
+
+      - name: Run migrations
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: php artisan migrate --force --no-interaction
+
+      - name: Directory permissions
+        run: chmod -R 777 storage bootstrap/cache
+
+      - name: Run tests
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: php artisan test --no-interaction
+
+      - name: Laravel optimize
+        env:
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: php artisan optimize

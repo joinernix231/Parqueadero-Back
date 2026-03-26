@@ -1,54 +1,49 @@
-# Configuración de Colas para Generación de Recibos
+# Queue setup — PDF receipts
 
-Este proyecto utiliza Jobs, Events y Listeners de Laravel para generar los recibos PDF de forma asíncrona.
+The app uses Laravel **jobs**, **events**, and **listeners** to generate receipt PDFs asynchronously.
 
-## Arquitectura
+## Flow
 
-1. **Events**: Se disparan cuando se registra una entrada o salida de vehículo
-   - `VehicleEntryRegistered`: Se dispara cuando se registra una entrada
-   - `VehicleExitRegistered`: Se dispara cuando se registra una salida
+1. **Events** — fired on entry/exit  
+   - `VehicleEntryRegistered`  
+   - `VehicleExitRegistered`  
 
-2. **Listeners**: Escuchan los eventos y despachan los Jobs
-   - `GenerateEntryReceiptListener`: Escucha `VehicleEntryRegistered`
-   - `GenerateExitReceiptListener`: Escucha `VehicleExitRegistered`
+2. **Listeners** — dispatch jobs  
+   - `GenerateEntryReceiptListener`  
+   - `GenerateExitReceiptListener`  
 
-3. **Jobs**: Procesan la generación de PDFs de forma asíncrona
-   - `GenerateEntryReceiptJob`: Genera el PDF de entrada
-   - `GenerateExitReceiptJob`: Genera el PDF de salida
+3. **Jobs** — build PDFs  
+   - `GenerateEntryReceiptJob`  
+   - `GenerateExitReceiptJob`  
 
-## Configuración
+## Configuration
 
-### 1. Configurar el driver de cola en `.env`
+### 1. Queue driver (`.env`)
 
 ```env
 QUEUE_CONNECTION=database
-# O usar Redis si prefieres:
+# or
 # QUEUE_CONNECTION=redis
 ```
 
-### 2. Crear las tablas de colas
-
-Si usas `database` como driver:
+### 2. Database driver tables
 
 ```bash
 php artisan queue:table
 php artisan migrate
 ```
 
-Si usas `redis`, asegúrate de que Redis esté corriendo (ya está configurado en Docker).
+For Redis, ensure the Redis service is running (e.g. Docker).
 
-### 3. Ejecutar el worker de colas
+### 3. Run a worker
 
-En desarrollo (sincrónico para testing):
 ```bash
 php artisan queue:work
 ```
 
-En producción, ejecuta el worker como servicio o usando Supervisor.
+In production, use a process manager (Supervisor, systemd, Kubernetes, etc.).
 
-### 4. Para Docker
-
-Agrega un servicio worker en `docker-compose.yml`:
+### 4. Docker example (`docker-compose`)
 
 ```yaml
 queue-worker:
@@ -68,33 +63,31 @@ queue-worker:
     - redis
 ```
 
-## Flujo de Trabajo
+## Pipeline
 
-1. Usuario registra entrada/salida → `EntryVehicleUseCase` / `ExitVehicleUseCase`
-2. UseCase crea/actualiza el ticket → Dispara Event (`VehicleEntryRegistered` / `VehicleExitRegistered`)
-3. Listener escucha el evento → Despacha Job (`GenerateEntryReceiptJob` / `GenerateExitReceiptJob`)
-4. Worker procesa el Job → Genera PDF y lo guarda en `storage/app/receipts/`
-5. PDF disponible para descarga desde el controlador
+1. User records entry/exit → `EntryVehicleUseCase` / `ExitVehicleUseCase`  
+2. Ticket created/updated → domain event fired  
+3. Listener dispatches `GenerateEntryReceiptJob` / `GenerateExitReceiptJob`  
+4. Worker writes PDF under `storage/app/receipts/`  
+5. HTTP controllers can also stream downloads directly when needed  
 
-## Ubicación de los PDFs
+## PDF paths
 
-Los PDFs se guardan en:
-- Entrada: `storage/app/receipts/entry/recibo-entrada-{id}.pdf`
-- Salida: `storage/app/receipts/exit/recibo-salida-{id}.pdf`
+- Entry: `storage/app/receipts/entry/entry-receipt-{id}.pdf`  
+- Exit: `storage/app/receipts/exit/exit-receipt-{id}.pdf`  
 
-## Monitoreo
+## Logs
 
-Los logs de los Jobs se registran en `storage/logs/laravel.log`:
-- Éxito: "Recibo generado exitosamente"
-- Error: "Error al generar recibo" (con detalles)
-- Fallo definitivo: "Job falló definitivamente" (después de 3 intentos)
+Check `storage/logs/laravel.log` for English messages such as:
 
-## Ventajas
+- `Entry receipt generated successfully: ...`  
+- `Exit receipt generated successfully: ...`  
+- `Failed to generate entry/exit receipt for ticket ID: ...`  
+- `... job failed permanently ...` (after retries)  
 
-- ✅ No bloquea la respuesta HTTP al usuario
-- ✅ Reintentos automáticos en caso de fallo (3 intentos)
-- ✅ Escalable: múltiples workers pueden procesar jobs
-- ✅ Logs detallados para debugging
-- ✅ Separación de responsabilidades (Clean Architecture)
+## Why queues
 
-
+- Does not block the HTTP response  
+- Automatic retries (e.g. 3 attempts)  
+- Horizontally scalable workers  
+- Clear separation from use cases  

@@ -33,7 +33,7 @@ class VehicleApiTest extends TestCase
         Vehicle::factory()->count(5)->create();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/vehicles');
 
         // Assert
@@ -58,7 +58,7 @@ class VehicleApiTest extends TestCase
         ];
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/vehicles', $vehicleData);
 
         // Assert
@@ -87,7 +87,7 @@ class VehicleApiTest extends TestCase
         ];
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/vehicles', $vehicleData);
 
         // Assert
@@ -102,7 +102,7 @@ class VehicleApiTest extends TestCase
         $vehicle = Vehicle::factory()->create();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/vehicles/{$vehicle->id}");
 
         // Assert
@@ -121,8 +121,8 @@ class VehicleApiTest extends TestCase
         $vehicle = Vehicle::factory()->create(['plate' => 'XYZ789']);
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
-            ->getJson('/api/vehicles/search/plate?plate=XYZ789');
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
+            ->getJson('/api/vehicles/search-by-plate?plate=XYZ789');
 
         // Assert
         $response->assertStatus(200)
@@ -139,7 +139,7 @@ class VehicleApiTest extends TestCase
         $token = $this->authenticate();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/vehicles/99999');
 
         // Assert
@@ -152,7 +152,7 @@ class VehicleApiTest extends TestCase
         $token = $this->authenticate();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/vehicles', []);
 
         // Assert
@@ -160,8 +160,3 @@ class VehicleApiTest extends TestCase
             ->assertJsonValidationErrors(['plate', 'owner_name', 'phone', 'vehicle_type']);
     }
 }
-
-
-
-
-

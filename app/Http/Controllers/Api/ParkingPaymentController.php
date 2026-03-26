@@ -19,15 +19,15 @@ class ParkingPaymentController extends Controller
         private ParkingTicketRepositoryInterface $parkingTicketRepository,
         private ParkingLotRepositoryInterface $parkingLotRepository,
         private PricingService $pricingService
-    ) {
-    }
+    ) {}
 
     public function process(PaymentRequest $request): JsonResponse
     {
         try {
             $dto = PaymentDTO::fromArray($request->validated());
             $ticket = $this->processPaymentUseCase->execute($dto);
-            return $this->sendResponse(new ParkingTicketResource($ticket), 'Pago procesado correctamente');
+
+            return $this->sendResponse(new ParkingTicketResource($ticket), 'Payment processed successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }
@@ -37,18 +37,18 @@ class ParkingPaymentController extends Controller
     {
         try {
             $ticket = $this->parkingTicketRepository->findById($id);
-            if (!$ticket) {
-                return $this->sendError('Ticket no encontrado', 404);
+            if (! $ticket) {
+                return $this->sendError('Ticket not found', 404);
             }
-            if (!$ticket->isActive()) {
-                return $this->sendError('El ticket ya tiene salida registrada', 422);
+            if (! $ticket->isActive()) {
+                return $this->sendError('This ticket already has an exit recorded', 422);
             }
 
             $parkingLot = $ticket->getParkingLot()
                 ?? $this->parkingLotRepository->findById($ticket->getParkingLotId());
 
-            if (!$parkingLot) {
-                return $this->sendError('Estacionamiento no encontrado', 404);
+            if (! $parkingLot) {
+                return $this->sendError('Parking lot not found', 404);
             }
 
             $now = now()->format('Y-m-d H:i:s');
@@ -58,16 +58,16 @@ class ParkingPaymentController extends Controller
 
             return $this->sendResponse(
                 [
-                    'ticket_id'           => $ticket->getId(),
-                    'total_hours'         => $this->pricingService->calculateTotalHours($tempTicket),
+                    'ticket_id' => $ticket->getId(),
+                    'total_hours' => $this->pricingService->calculateTotalHours($tempTicket),
                     'hourly_rate_applied' => $parkingLot->isDayTime($nowHour)
                         ? $parkingLot->getHourlyRateDay()
                         : $parkingLot->getHourlyRateNight(),
-                    'total_amount'        => $this->pricingService->calculatePrice($tempTicket, $parkingLot),
-                    'entry_time'          => $ticket->getEntryTime(),
-                    'calculated_at'       => $now,
+                    'total_amount' => $this->pricingService->calculatePrice($tempTicket, $parkingLot),
+                    'entry_time' => $ticket->getEntryTime(),
+                    'calculated_at' => $now,
                 ],
-                'Precio calculado correctamente'
+                'Price calculated successfully'
             );
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);

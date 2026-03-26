@@ -44,7 +44,7 @@ class ParkingSpotApiTest extends TestCase
         ]);
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/parking-spots/available?parking_lot_id={$parkingLot->id}");
 
         // Assert
@@ -63,15 +63,10 @@ class ParkingSpotApiTest extends TestCase
         $token = $this->authenticate();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking-spots/available');
 
         // Assert
         $response->assertStatus(422);
     }
 }
-
-
-
-
-

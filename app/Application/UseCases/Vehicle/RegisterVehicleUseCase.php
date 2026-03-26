@@ -12,14 +12,13 @@ class RegisterVehicleUseCase
     public function __construct(
         private VehicleRepositoryInterface $vehicleRepository,
         private VehicleValidationService $validationService
-    ) {
-    }
+    ) {}
 
     public function execute(VehicleDTO $dto): Vehicle
     {
         // Validar formato de placa
-        if (!$this->validationService->validatePlateFormat($dto->plate)) {
-            throw new \InvalidArgumentException('Formato de placa inválido');
+        if (! $this->validationService->validatePlateFormat($dto->plate)) {
+            throw new \InvalidArgumentException('Invalid license plate format');
         }
 
         // Normalizar placa
@@ -28,7 +27,7 @@ class RegisterVehicleUseCase
         // Verificar si la placa ya existe
         $existingVehicle = $this->vehicleRepository->findByPlate($normalizedPlate);
         if ($existingVehicle) {
-            throw new \Exception('La placa ya está registrada');
+            throw new \Exception('This license plate is already registered');
         }
 
         // Crear vehículo
@@ -42,8 +41,3 @@ class RegisterVehicleUseCase
         return $this->vehicleRepository->create($data);
     }
 }
-
-
-
-
-

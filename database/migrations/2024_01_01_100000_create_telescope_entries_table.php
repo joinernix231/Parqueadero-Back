@@ -87,7 +87,3 @@ return new class extends Migration
         $this->schema->dropIfExists('telescope_monitoring');
     }
 };
-
-
-
-

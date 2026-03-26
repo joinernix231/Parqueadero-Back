@@ -14,8 +14,7 @@ class ReceiptService
         private VehicleRepositoryInterface $vehicleRepository,
         private ParkingLotRepositoryInterface $parkingLotRepository,
         private ParkingSpotRepositoryInterface $parkingSpotRepository
-    ) {
-    }
+    ) {}
 
     /**
      * Genera un recibo PDF de entrada y lo descarga
@@ -23,10 +22,10 @@ class ReceiptService
     public function generateEntryReceipt(ParkingTicket $ticket): Response
     {
         $data = $this->prepareReceiptData($ticket);
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('receipts.entry-receipt', $data);
-        
-        return $pdf->download('recibo-entrada-' . $ticket->getId() . '.pdf');
+
+        return $pdf->download('entry-receipt-'.$ticket->getId().'.pdf');
     }
 
     /**
@@ -35,9 +34,9 @@ class ReceiptService
     public function generateEntryReceiptPdf(ParkingTicket $ticket): string
     {
         $data = $this->prepareReceiptData($ticket);
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('receipts.entry-receipt', $data);
-        
+
         return $pdf->output();
     }
 
@@ -46,15 +45,15 @@ class ReceiptService
      */
     public function generateExitReceipt(ParkingTicket $ticket): Response
     {
-        if (!$ticket->getExitTime()) {
-            throw new \Exception('No se puede generar recibo de salida sin hora de salida registrada');
+        if (! $ticket->getExitTime()) {
+            throw new \Exception('Cannot generate exit receipt without a recorded exit time');
         }
 
         $data = $this->prepareReceiptData($ticket);
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('receipts.exit-receipt', $data);
-        
-        return $pdf->download('recibo-salida-' . $ticket->getId() . '.pdf');
+
+        return $pdf->download('exit-receipt-'.$ticket->getId().'.pdf');
     }
 
     /**
@@ -62,14 +61,14 @@ class ReceiptService
      */
     public function generateExitReceiptPdf(ParkingTicket $ticket): string
     {
-        if (!$ticket->getExitTime()) {
-            throw new \Exception('No se puede generar recibo de salida sin hora de salida registrada');
+        if (! $ticket->getExitTime()) {
+            throw new \Exception('Cannot generate exit receipt without a recorded exit time');
         }
 
         $data = $this->prepareReceiptData($ticket);
-        
+
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('receipts.exit-receipt', $data);
-        
+
         return $pdf->output();
     }
 
@@ -82,8 +81,8 @@ class ReceiptService
         $parkingLot = $this->parkingLotRepository->findById($ticket->getParkingLotId());
         $parkingSpot = $this->parkingSpotRepository->findById($ticket->getParkingSpotId());
 
-        if (!$vehicle || !$parkingLot) {
-            throw new \Exception('No se pudo obtener la información completa del ticket');
+        if (! $vehicle || ! $parkingLot) {
+            throw new \Exception('Could not load complete ticket information');
         }
 
         return [
@@ -109,10 +108,10 @@ class ReceiptService
     {
         try {
             $date = new \DateTime($dateTime);
+
             return $date->format('d/m/Y H:i:s');
         } catch (\Exception $e) {
             return $dateTime;
         }
     }
 }
-

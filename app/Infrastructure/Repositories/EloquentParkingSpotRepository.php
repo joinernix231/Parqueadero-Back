@@ -11,6 +11,7 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
     public function findById(int $id): ?ParkingSpot
     {
         $model = ParkingSpotModel::find($id);
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -18,7 +19,7 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
     {
         return ParkingSpotModel::where('parking_lot_id', $parkingLotId)
             ->get()
-            ->map(fn($model) => $this->toEntity($model))
+            ->map(fn ($model) => $this->toEntity($model))
             ->toArray();
     }
 
@@ -28,7 +29,7 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
             ->where('is_active', true)
             ->where('is_occupied', false)
             ->get()
-            ->map(fn($model) => $this->toEntity($model))
+            ->map(fn ($model) => $this->toEntity($model))
             ->toArray();
     }
 
@@ -37,6 +38,7 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
         $model = ParkingSpotModel::where('parking_lot_id', $parkingLotId)
             ->where('spot_number', $spotNumber)
             ->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -48,6 +50,7 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
     public function create(array $data): ParkingSpot
     {
         $model = ParkingSpotModel::create($data);
+
         return $this->toEntity($model);
     }
 
@@ -65,8 +68,3 @@ class EloquentParkingSpotRepository implements ParkingSpotRepositoryInterface
         );
     }
 }
-
-
-
-
-

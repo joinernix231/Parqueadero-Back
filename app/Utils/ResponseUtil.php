@@ -5,12 +5,7 @@ namespace App\Utils;
 class ResponseUtil
 {
     /**
-     * Construye una respuesta de éxito estándar.
-     *
-     * @param string $message
-     * @param mixed  $data
-     * @param array  $meta
-     * @return array
+     * Build a standard success payload.
      */
     public static function makeResponse(string $message, mixed $data = null, array $meta = []): array
     {
@@ -19,11 +14,11 @@ class ResponseUtil
             'message' => $message,
         ];
 
-        if (!is_null($data)) {
+        if (! is_null($data)) {
             $response['data'] = $data;
         }
 
-        if (!empty($meta)) {
+        if (! empty($meta)) {
             $response['meta'] = $meta;
         }
 
@@ -31,11 +26,7 @@ class ResponseUtil
     }
 
     /**
-     * Construye una respuesta de error estándar.
-     *
-     * @param string $message
-     * @param array  $errors
-     * @return array
+     * Build a standard error payload.
      */
     public static function makeError(string $message, array $errors = []): array
     {
@@ -44,12 +35,10 @@ class ResponseUtil
             'message' => $message,
         ];
 
-        if (!empty($errors)) {
+        if (! empty($errors)) {
             $response['errors'] = $errors;
         }
 
         return $response;
     }
 }
-
-

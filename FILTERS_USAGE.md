@@ -1,58 +1,58 @@
-# Sistema de Filtros Criteria - Guía de Uso
+# Criteria filter system — usage guide
 
-## Descripción
+## Overview
 
-Sistema moderno de filtros para repositorios que permite filtrar datos de forma flexible y segura usando una sintaxis simple y poderosa.
+Repository filters use a compact, safe string syntax so clients can query without ad-hoc query parameters for every field.
 
-## Sintaxis
+## Syntax
 
-### Formato Básico
+### Basic format
+
 ```
-campo|operador|valor;campo2|operador2|valor2
+field|operator|value;field2|operator2|value2
 ```
 
-### Operadores Disponibles
+### Operators
 
-| Operador | Descripción | Ejemplo |
+| Operator | Description | Example |
 |----------|-------------|---------|
-| `eq`, `=`, `==` | Igual a | `plate|eq|ABC123` |
-| `ne`, `!=`, `<>` | Diferente de | `vehicle_type|ne|car` |
-| `gt`, `>` | Mayor que | `total_amount|gt|100` |
-| `gte`, `>=` | Mayor o igual que | `total_amount|gte|100` |
-| `lt`, `<` | Menor que | `total_amount|lt|1000` |
-| `lte`, `<=` | Menor o igual que | `total_amount|lte|1000` |
-| `like` | Contiene (añade % alrededor) | `plate|like|ABC` |
-| `ilike` | Contiene (case-insensitive) | `owner_name|ilike|juan` |
-| `in` | En lista (valores separados por coma) | `vehicle_type|in|car,motorcycle` |
-| `notIn` | No está en lista | `vehicle_type|notIn|truck` |
-| `between` | Entre dos valores | `total_amount|between|100,500` |
-| `null` | Es nulo | `exit_time|null|` |
-| `notNull` | No es nulo | `exit_time|notNull|` |
-| `date` | Fecha específica | `entry_time|date|2024-01-15` |
-| `dateBetween` | Rango de fechas | `entry_time|dateBetween|2024-01-01,2024-12-31` |
+| `eq`, `=`, `==` | Equals | `plate|eq|ABC123` |
+| `ne`, `!=`, `<>` | Not equal | `vehicle_type|ne|car` |
+| `gt`, `>` | Greater than | `total_amount|gt|100` |
+| `gte`, `>=` | Greater or equal | `total_amount|gte|100` |
+| `lt`, `<` | Less than | `total_amount|lt|1000` |
+| `lte`, `<=` | Less or equal | `total_amount|lte|1000` |
+| `like` | Contains (wraps `%`) | `plate|like|ABC` |
+| `ilike` | Case-insensitive contains | `owner_name|ilike|jane` |
+| `in` | In list (comma-separated) | `vehicle_type|in|car,motorcycle` |
+| `notIn` | Not in list | `vehicle_type|notIn|truck` |
+| `between` | Between two values | `total_amount|between|100,500` |
+| `null` | Is null | `exit_time|null|` |
+| `notNull` | Is not null | `exit_time|notNull|` |
+| `date` | Specific date | `entry_time|date|2024-01-15` |
+| `dateBetween` | Date range | `entry_time|dateBetween|2024-01-01,2024-12-31` |
 
-### Filtros en Relaciones
-
-Para filtrar por campos de modelos relacionados:
+### Relation filters
 
 ```
-relacion.campo|operador|valor
+relation.field|operator|value
 ```
 
-**Ejemplos:**
-- `vehicle.plate|eq|ABC123` - Filtrar tickets por placa del vehículo
-- `parkingLot.name|like|Central` - Filtrar por nombre del estacionamiento
+Examples:
 
-## Uso en API
+- `vehicle.plate|eq|ABC123` — tickets for a given plate  
+- `parkingLot.name|like|Central` — filter by lot name  
 
-### Query String
+## Using from the API
+
+### Query string
 
 ```
 GET /api/vehicles?filters=plate|like|ABC;vehicle_type|in|car,motorcycle
 GET /api/parking/history?filters=vehicle.plate|eq|ABC123;entry_time|dateBetween|2024-01-01,2024-12-31
 ```
 
-### Body (POST/PUT)
+### JSON body (POST/PUT)
 
 ```json
 {
@@ -60,59 +60,56 @@ GET /api/parking/history?filters=vehicle.plate|eq|ABC123;entry_time|dateBetween|
 }
 ```
 
-### Array de Filtros
-
-También puedes pasar un array directamente:
+### PHP array shorthand
 
 ```php
 $filters = [
     'plate' => 'ABC123',
-    'vehicle_type' => 'car,motorcycle', // Se interpreta como 'in'
-    'created_at' => '2024-01-01,2024-12-31' // Se interpreta como 'dateBetween'
+    'vehicle_type' => 'car,motorcycle', // interpreted as `in`
+    'created_at' => '2024-01-01,2024-12-31', // interpreted as `dateBetween`
 ];
 ```
 
-## Ejemplos Prácticos
+## Examples
 
-### Vehículos
+### Vehicles
 
 ```bash
-# Buscar vehículos por placa que contenga "ABC"
+# Plates containing "ABC"
 GET /api/vehicles?filters=plate|like|ABC
 
-# Buscar vehículos de tipo car o motorcycle
+# car or motorcycle
 GET /api/vehicles?filters=vehicle_type|in|car,motorcycle
 
-# Buscar vehículos creados en enero 2024
+# Created in January 2024
 GET /api/vehicles?filters=created_at|dateBetween|2024-01-01,2024-01-31
 ```
 
-### Tickets de Estacionamiento
+### Parking tickets
 
 ```bash
-# Tickets activos (sin salida)
+# No exit time (active)
 GET /api/parking/history?filters=exit_time|null|
 
-# Tickets con vehículo específico
+# By vehicle plate
 GET /api/parking/history?filters=vehicle.plate|eq|ABC123
 
-# Tickets en un rango de fechas
+# Entry date range
 GET /api/parking/history?filters=entry_time|dateBetween|2024-01-01,2024-12-31
 
-# Tickets pagados con monto mayor a $50
+# Paid and amount > 50
 GET /api/parking/history?filters=is_paid|eq|true;total_amount|gt|50
 ```
 
-### Combinación de Filtros
+### Combining filters
 
 ```bash
-# Múltiples filtros separados por punto y coma
 GET /api/vehicles?filters=plate|like|ABC;vehicle_type|eq|car;created_at|dateBetween|2024-01-01,2024-12-31
 ```
 
-## Implementación en Repositorios
+## Repository implementation
 
-### 1. Usar el Trait
+### 1. Use the trait
 
 ```php
 use App\Infrastructure\Repositories\Traits\AppliesFilters;
@@ -120,17 +117,18 @@ use App\Infrastructure\Repositories\Traits\AppliesFilters;
 class EloquentVehicleRepository implements VehicleRepositoryInterface
 {
     use AppliesFilters;
-    
+
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
         $query = VehicleModel::query();
         $query = $this->applyFilters($query, $filters);
+
         return $query->paginate($perPage);
     }
 }
 ```
 
-### 2. Definir Campos Permitidos
+### 2. Allow-list fields
 
 ```php
 protected function getFilterableFields(): array
@@ -140,7 +138,7 @@ protected function getFilterableFields(): array
 
 protected function getFilterableRelations(): array
 {
-    return ['vehicle', 'parkingLot']; // Para tickets
+    return ['vehicle', 'parkingLot'];
 }
 
 protected function getDateFields(): array
@@ -149,23 +147,17 @@ protected function getDateFields(): array
 }
 ```
 
-## Seguridad
+## Security
 
-- Solo los campos definidos en `getFilterableFields()` pueden ser filtrados
-- Solo las relaciones definidas en `getFilterableRelations()` pueden ser usadas
-- Los campos de fecha se validan automáticamente
-- Previene SQL injection usando parámetros preparados de Laravel
+- Only `getFilterableFields()` may be filtered.  
+- Only `getFilterableRelations()` may be used in relation paths.  
+- Date fields are validated.  
+- Queries use Laravel’s parameter binding (SQL injection safe).  
 
-## Ventajas
+## Benefits
 
-✅ **Una sola URL** para todos los filtros  
-✅ **Sintaxis simple** y fácil de entender  
-✅ **Type-safe** con validación de campos  
-✅ **Seguro** contra SQL injection  
-✅ **Extensible** fácilmente  
-✅ **Compatible** con relaciones Eloquent  
-✅ **Moderno** usando PHP 8+ features  
-
-
-
-
+- One query parameter for many filters  
+- Readable syntax  
+- Field allow-listing  
+- Extensible per repository  
+- Works with Eloquent relations  

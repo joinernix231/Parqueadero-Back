@@ -6,11 +6,7 @@ use Exception;
 
 class ParkingSpotNotAvailableException extends Exception
 {
-    protected $message = 'El espacio de estacionamiento no está disponible';
+    protected $message = 'The parking spot is not available';
+
     protected $code = 422;
 }
-
-
-
-
-

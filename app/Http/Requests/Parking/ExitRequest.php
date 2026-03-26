@@ -23,15 +23,10 @@ class ExitRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'ticket_id.required_without' => 'Se requiere ticket_id o plate.',
-            'ticket_id.exists' => 'El ticket no existe.',
-            'plate.required_without' => 'Se requiere ticket_id o plate.',
-            'exit_time.date' => 'La fecha de salida debe ser válida.',
+            'ticket_id.required_without' => 'Either ticket_id or plate is required.',
+            'ticket_id.exists' => 'The ticket does not exist.',
+            'plate.required_without' => 'Either ticket_id or plate is required.',
+            'exit_time.date' => 'Exit time must be a valid date.',
         ];
     }
 }
-
-
-
-
-

@@ -7,8 +7,8 @@ use App\Domain\Repositories\ParkingTicketRepositoryInterface;
 use App\Domain\Repositories\ParkingTicketStatsRepositoryInterface;
 use App\Infrastructure\Repositories\Traits\AppliesFilters;
 use App\Models\ParkingTicket as ParkingTicketModel;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterface, ParkingTicketStatsRepositoryInterface
 {
@@ -17,6 +17,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
     public function findById(int $id): ?ParkingTicket
     {
         $model = ParkingTicketModel::with(['vehicle', 'parkingSpot', 'parkingLot', 'entryGuard', 'exitGuard'])->find($id);
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -26,6 +27,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             ->where('vehicle_id', $vehicleId)
             ->whereNull('exit_time')
             ->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -37,6 +39,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             })
             ->whereNull('exit_time')
             ->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -45,16 +48,17 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         $model = ParkingTicketModel::where('parking_spot_id', $parkingSpotId)
             ->whereNull('exit_time')
             ->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
     public function findHistory(array $filters = []): array
     {
         $query = ParkingTicketModel::with(['vehicle', 'parkingSpot', 'parkingLot']);
-        
+
         // Convertir filtros del request al formato correcto
         $convertedFilters = $this->convertRequestFilters($filters);
-        
+
         // Aplicar filtros usando el sistema de criteria
         $query = $this->applyFilters($query, $convertedFilters);
 
@@ -69,7 +73,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
 
         return $query->orderBy('entry_time', 'desc')
             ->get()
-            ->map(fn($model) => $this->toEntity($model))
+            ->map(fn ($model) => $this->toEntity($model))
             ->toArray();
     }
 
@@ -91,7 +95,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         $paginator = $query->orderBy('entry_time', 'desc')->paginate($perPage);
 
         $paginator->setCollection(
-            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+            $paginator->getCollection()->map(fn ($model) => $this->toEntity($model))
         );
 
         return $paginator;
@@ -104,7 +108,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             'entry_time', 'exit_time', 'entry_guard_id', 'exit_guard_id',
             'total_hours', 'hourly_rate_applied', 'total_amount',
             'is_paid', 'payment_method', 'payment_time',
-            'created_at', 'updated_at'
+            'created_at', 'updated_at',
         ];
     }
 
@@ -126,38 +130,38 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         $converted = [];
 
         // Handle date_from - filter by entry_time >= date_from
-        if (isset($filters['date_from']) && !empty($filters['date_from'])) {
+        if (isset($filters['date_from']) && ! empty($filters['date_from'])) {
             $converted[] = [
                 'field' => 'entry_time',
                 'operator' => 'gte',
-                'value' => $filters['date_from'] . ' 00:00:00'
+                'value' => $filters['date_from'].' 00:00:00',
             ];
         }
 
         // Handle date_to - filter by entry_time <= date_to
-        if (isset($filters['date_to']) && !empty($filters['date_to'])) {
+        if (isset($filters['date_to']) && ! empty($filters['date_to'])) {
             $converted[] = [
                 'field' => 'entry_time',
                 'operator' => 'lte',
-                'value' => $filters['date_to'] . ' 23:59:59'
+                'value' => $filters['date_to'].' 23:59:59',
             ];
         }
 
         // Handle plate - filter by vehicle.plate
-        if (isset($filters['plate']) && !empty($filters['plate'])) {
+        if (isset($filters['plate']) && ! empty($filters['plate'])) {
             $converted[] = [
                 'field' => 'vehicle.plate',
                 'operator' => 'like',
-                'value' => $filters['plate']
+                'value' => $filters['plate'],
             ];
         }
 
         // Handle parking_lot_id
-        if (isset($filters['parking_lot_id']) && !empty($filters['parking_lot_id'])) {
+        if (isset($filters['parking_lot_id']) && ! empty($filters['parking_lot_id'])) {
             $converted[] = [
                 'field' => 'parking_lot_id',
                 'operator' => 'eq',
-                'value' => (string)$filters['parking_lot_id']
+                'value' => (string) $filters['parking_lot_id'],
             ];
         }
 
@@ -171,7 +175,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         return $this->buildCurrentParkedVehiclesQuery($parkingLotId, $filters, $search)
             ->orderBy('entry_time', 'desc')
             ->get()
-            ->map(fn($model) => $this->toEntity($model))
+            ->map(fn ($model) => $this->toEntity($model))
             ->toArray();
     }
 
@@ -182,7 +186,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
             ->paginate($perPage);
 
         $paginator->setCollection(
-            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+            $paginator->getCollection()->map(fn ($model) => $this->toEntity($model))
         );
 
         return $paginator;
@@ -191,6 +195,7 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
     public function create(array $data): ParkingTicket
     {
         $model = ParkingTicketModel::create($data);
+
         return $this->toEntity($model);
     }
 
@@ -224,10 +229,10 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
 
         return [
             'active_vehicles' => ParkingTicketModel::whereNull('exit_time')->count(),
-            'total_revenue'   => (float) ParkingTicketModel::whereNotNull('exit_time')->whereNotNull('total_amount')->sum('total_amount'),
-            'total_tickets'   => ParkingTicketModel::whereNotNull('exit_time')->count(),
+            'total_revenue' => (float) ParkingTicketModel::whereNotNull('exit_time')->whereNotNull('total_amount')->sum('total_amount'),
+            'total_tickets' => ParkingTicketModel::whereNotNull('exit_time')->count(),
             'occupancy_by_dow' => $occupancyByDow,
-            'revenue_by_dow'   => $revenueByDow,
+            'revenue_by_dow' => $revenueByDow,
         ];
     }
 
@@ -270,12 +275,13 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
     private function toEntity(ParkingTicketModel $model): ParkingTicket
     {
         $formatDate = static function ($date): ?string {
-            if (!$date) {
+            if (! $date) {
                 return null;
             }
             if ($date instanceof \DateTimeInterface) {
                 return $date->format('Y-m-d H:i:s');
             }
+
             return (string) $date;
         };
 
@@ -339,4 +345,3 @@ class EloquentParkingTicketRepository implements ParkingTicketRepositoryInterfac
         return $ticket;
     }
 }
-

@@ -13,8 +13,5 @@ class VehicleEntryRegistered
 
     public function __construct(
         public ParkingTicket $ticket
-    ) {
-    }
+    ) {}
 }
-
-

@@ -11,9 +11,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 class EloquentVehicleRepository implements VehicleRepositoryInterface
 {
     use AppliesFilters;
+
     public function findById(int $id): ?Vehicle
     {
         $model = VehicleModel::find($id);
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -21,6 +23,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
     {
         $normalizedPlate = strtoupper(str_replace(' ', '', trim($plate)));
         $model = VehicleModel::where('plate', $normalizedPlate)->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -29,7 +32,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         $query = VehicleModel::query();
         $query = $this->applyFilters($query, $filters);
 
-        return $query->get()->map(fn($model) => $this->toEntity($model))->toArray();
+        return $query->get()->map(fn ($model) => $this->toEntity($model))->toArray();
     }
 
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
@@ -40,7 +43,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         $paginator = $query->paginate($perPage);
 
         $paginator->setCollection(
-            $paginator->getCollection()->map(fn($model) => $this->toEntity($model))
+            $paginator->getCollection()->map(fn ($model) => $this->toEntity($model))
         );
 
         return $paginator;
@@ -69,6 +72,7 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         }
 
         $model = VehicleModel::create($data);
+
         return $this->toEntity($model);
     }
 
@@ -100,4 +104,3 @@ class EloquentVehicleRepository implements VehicleRepositoryInterface
         );
     }
 }
-

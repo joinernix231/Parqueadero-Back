@@ -9,8 +9,7 @@ class GetCurrentParkedVehiclesUseCase
 {
     public function __construct(
         private ParkingTicketRepositoryInterface $parkingTicketRepository
-    ) {
-    }
+    ) {}
 
     public function execute(
         ?int $parkingLotId = null,
@@ -18,8 +17,7 @@ class GetCurrentParkedVehiclesUseCase
         ?string $search = null,
         bool $paginate = false,
         int $perPage = 15
-    ): array|LengthAwarePaginator
-    {
+    ): array|LengthAwarePaginator {
         if ($paginate) {
             return $this->parkingTicketRepository->paginateCurrentParkedVehicles($perPage, $parkingLotId, $filters, $search);
         }
@@ -27,7 +25,3 @@ class GetCurrentParkedVehiclesUseCase
         return $this->parkingTicketRepository->findCurrentParkedVehicles($parkingLotId, $filters, $search);
     }
 }
-
-
-
-

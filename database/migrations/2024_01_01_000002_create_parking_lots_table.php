@@ -33,8 +33,3 @@ class CreateParkingLotsTable extends Migration
         Schema::dropIfExists('parking_lots');
     }
 }
-
-
-
-
-

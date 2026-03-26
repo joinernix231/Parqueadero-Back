@@ -13,8 +13,7 @@ class ParkingSpot
         private bool $isActive = true,
         private ?string $createdAt = null,
         private ?string $updatedAt = null
-    ) {
-    }
+    ) {}
 
     public function getId(): ?int
     {
@@ -48,7 +47,7 @@ class ParkingSpot
 
     public function isAvailable(): bool
     {
-        return $this->isActive && !$this->isOccupied;
+        return $this->isActive && ! $this->isOccupied;
     }
 
     public function getCreatedAt(): ?string
@@ -78,7 +77,7 @@ class ParkingSpot
 
     public function setSpotType(string $spotType): void
     {
-        if (!in_array($spotType, ['regular', 'disabled', 'vip'])) {
+        if (! in_array($spotType, ['regular', 'disabled', 'vip'])) {
             throw new \InvalidArgumentException("Invalid spot type: {$spotType}");
         }
         $this->spotType = $spotType;
@@ -97,24 +96,19 @@ class ParkingSpot
     public function occupy(): void
     {
         if ($this->isOccupied) {
-            throw new \RuntimeException("Spot is already occupied");
+            throw new \RuntimeException('Spot is already occupied');
         }
-        if (!$this->isActive) {
-            throw new \RuntimeException("Spot is not active");
+        if (! $this->isActive) {
+            throw new \RuntimeException('Spot is not active');
         }
         $this->isOccupied = true;
     }
 
     public function release(): void
     {
-        if (!$this->isOccupied) {
-            throw new \RuntimeException("Spot is not occupied");
+        if (! $this->isOccupied) {
+            throw new \RuntimeException('Spot is not occupied');
         }
         $this->isOccupied = false;
     }
 }
-
-
-
-
-

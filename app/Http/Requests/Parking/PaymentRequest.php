@@ -24,18 +24,13 @@ class PaymentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'ticket_id.required' => 'El ticket es obligatorio.',
-            'ticket_id.exists' => 'El ticket no existe.',
-            'amount.required' => 'El monto es obligatorio.',
-            'amount.numeric' => 'El monto debe ser numérico.',
-            'amount.min' => 'El monto no puede ser negativo.',
-            'payment_method.required' => 'El método de pago es obligatorio.',
-            'payment_method.in' => 'El método de pago debe ser: cash, card o transfer.',
+            'ticket_id.required' => 'Ticket is required.',
+            'ticket_id.exists' => 'The ticket does not exist.',
+            'amount.required' => 'Amount is required.',
+            'amount.numeric' => 'Amount must be numeric.',
+            'amount.min' => 'Amount cannot be negative.',
+            'payment_method.required' => 'Payment method is required.',
+            'payment_method.in' => 'Payment method must be one of: cash, card, transfer.',
         ];
     }
 }
-
-
-
-
-

@@ -28,14 +28,13 @@ class UpdateParkingLotRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.max' => 'El nombre no puede exceder 255 caracteres.',
-            'address.max' => 'La dirección no puede exceder 500 caracteres.',
-            'total_spots.min' => 'Debe haber al menos 1 espacio.',
-            'hourly_rate_day.min' => 'La tarifa horaria diurna debe ser mayor o igual a 0.',
-            'hourly_rate_night.min' => 'La tarifa horaria nocturna debe ser mayor o igual a 0.',
-            'day_start_time.regex' => 'El formato de hora no es válido (HH:MM).',
-            'day_end_time.regex' => 'El formato de hora no es válido (HH:MM).',
+            'name.max' => 'Name may not exceed 255 characters.',
+            'address.max' => 'Address may not exceed 500 characters.',
+            'total_spots.min' => 'There must be at least one spot.',
+            'hourly_rate_day.min' => 'Day hourly rate must be greater than or equal to 0.',
+            'hourly_rate_night.min' => 'Night hourly rate must be greater than or equal to 0.',
+            'day_start_time.regex' => 'Invalid time format (use HH:MM).',
+            'day_end_time.regex' => 'Invalid time format (use HH:MM).',
         ];
     }
 }
-

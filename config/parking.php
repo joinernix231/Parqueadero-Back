@@ -17,8 +17,3 @@ return [
     'default_day_end_time' => '20:00',
     'rounding_minutes' => 15, // Redondeo en minutos (15, 30, 60)
 ];
-
-
-
-
-

@@ -17,17 +17,17 @@ class ParkingQueryController extends Controller
         private GetCurrentParkedVehiclesUseCase $getCurrentParkedVehiclesUseCase,
         private GetParkingHistoryUseCase $getParkingHistoryUseCase,
         private ParkingTicketRepositoryInterface $parkingTicketRepository
-    ) {
-    }
+    ) {}
 
     public function show(int $id): JsonResponse
     {
         try {
             $ticket = $this->parkingTicketRepository->findById($id);
-            if (!$ticket) {
-                return $this->sendError('Ticket no encontrado', 404);
+            if (! $ticket) {
+                return $this->sendError('Ticket not found', 404);
             }
-            return $this->sendResponse(new ParkingTicketResource($ticket), 'Ticket obtenido correctamente');
+
+            return $this->sendResponse(new ParkingTicketResource($ticket), 'Ticket retrieved successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -37,10 +37,11 @@ class ParkingQueryController extends Controller
     {
         try {
             $ticket = $this->parkingTicketRepository->findActiveByPlate($plate);
-            if (!$ticket) {
-                return $this->sendError('No se encontró un ticket activo para la placa proporcionada', 404);
+            if (! $ticket) {
+                return $this->sendError('No active ticket found for the given license plate', 404);
             }
-            return $this->sendResponse(new ParkingTicketResource($ticket), 'Ticket activo encontrado correctamente');
+
+            return $this->sendResponse(new ParkingTicketResource($ticket), 'Active ticket found successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -60,19 +61,19 @@ class ParkingQueryController extends Controller
             if ($request->shouldPaginate()) {
                 return $this->sendResponse(
                     ParkingTicketResource::collection(collect($result->items())),
-                    'Tickets actuales obtenidos correctamente',
+                    'Current tickets retrieved successfully',
                     [
                         'current_page' => $result->currentPage(),
-                        'last_page'    => $result->lastPage(),
-                        'per_page'     => $result->perPage(),
-                        'total'        => $result->total(),
+                        'last_page' => $result->lastPage(),
+                        'per_page' => $result->perPage(),
+                        'total' => $result->total(),
                     ]
                 );
             }
 
             return $this->sendResponse(
                 ParkingTicketResource::collection(collect($result)),
-                'Tickets actuales obtenidos correctamente'
+                'Current tickets retrieved successfully'
             );
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
@@ -88,12 +89,12 @@ class ParkingQueryController extends Controller
 
             return $this->sendResponse(
                 ParkingTicketResource::collection(collect($paginator->items())),
-                'Historial obtenido correctamente',
+                'History retrieved successfully',
                 [
                     'current_page' => $paginator->currentPage(),
-                    'last_page'    => $paginator->lastPage(),
-                    'per_page'     => $paginator->perPage(),
-                    'total'        => $paginator->total(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
                 ]
             );
         } catch (Throwable $e) {

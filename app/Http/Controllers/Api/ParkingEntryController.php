@@ -18,7 +18,8 @@ class ParkingEntryController extends Controller
         try {
             $dto = EntryVehicleDTO::fromArray($request->validated());
             $ticket = $this->entryVehicleUseCase->execute($dto, $request->user()->id);
-            return $this->sendResponse(new ParkingTicketResource($ticket), 'Ingreso registrado correctamente');
+
+            return $this->sendResponse(new ParkingTicketResource($ticket), 'Entry registered successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }

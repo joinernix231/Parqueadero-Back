@@ -13,16 +13,16 @@ class ParkingReceiptController extends Controller
     public function __construct(
         private ParkingTicketRepositoryInterface $parkingTicketRepository,
         private ReceiptService $receiptService
-    ) {
-    }
+    ) {}
 
     public function downloadEntry(int $id): Response|JsonResponse
     {
         try {
             $ticket = $this->parkingTicketRepository->findById($id);
-            if (!$ticket) {
-                return $this->sendError('Ticket no encontrado', 404);
+            if (! $ticket) {
+                return $this->sendError('Ticket not found', 404);
             }
+
             return $this->receiptService->generateEntryReceipt($ticket);
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
@@ -33,12 +33,13 @@ class ParkingReceiptController extends Controller
     {
         try {
             $ticket = $this->parkingTicketRepository->findById($id);
-            if (!$ticket) {
-                return $this->sendError('Ticket no encontrado', 404);
+            if (! $ticket) {
+                return $this->sendError('Ticket not found', 404);
             }
-            if (!$ticket->getExitTime()) {
-                return $this->sendError('El ticket aún no tiene salida registrada', 422);
+            if (! $ticket->getExitTime()) {
+                return $this->sendError('This ticket does not have an exit time recorded yet', 422);
             }
+
             return $this->receiptService->generateExitReceipt($ticket);
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);

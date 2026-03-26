@@ -13,12 +13,8 @@ interface UserRepositoryInterface
     public function create(array $data): User;
 
     public function update(int $id, array $data): bool;
+
     public function createApiToken(int $userId, string $name): string;
 
     public function revokeAllTokens(int $userId): void;
 }
-
-
-
-
-

@@ -18,7 +18,7 @@ class ParkingLotResource extends JsonResource
         /** @var ParkingLot $lot */
         $lot = $this->resource instanceof ParkingLot ? $this->resource : null;
 
-        if (!$lot) {
+        if (! $lot) {
             return [];
         }
 
@@ -36,8 +36,3 @@ class ParkingLotResource extends JsonResource
         ];
     }
 }
-
-
-
-
-

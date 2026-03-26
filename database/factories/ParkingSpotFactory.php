@@ -21,8 +21,3 @@ class ParkingSpotFactory extends Factory
         ];
     }
 }
-
-
-
-
-

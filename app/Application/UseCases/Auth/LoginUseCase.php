@@ -11,25 +11,19 @@ class LoginUseCase
 {
     public function __construct(
         private UserRepositoryInterface $userRepository
-    ) {
-    }
+    ) {}
 
     public function execute(LoginDTO $dto): array
     {
         $user = $this->userRepository->findByEmail($dto->email);
 
-        if (!$user || !Hash::check($dto->password, $user->getPassword())) {
-            throw new Exception('Credenciales inválidas');
+        if (! $user || ! Hash::check($dto->password, $user->getPassword())) {
+            throw new Exception('Invalid credentials');
         }
 
         return [
-            'user'  => $user,
+            'user' => $user,
             'token' => $this->userRepository->createApiToken($user->getId(), 'auth-token'),
         ];
     }
 }
-
-
-
-
-

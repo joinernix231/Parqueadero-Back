@@ -11,8 +11,7 @@ class EntryVehicleDTO
         public readonly int $parkingLotId = 0,
         public readonly int $parkingSpotId = 0,
         public readonly ?string $entryTime = null
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -20,7 +19,7 @@ class EntryVehicleDTO
         if (isset($data['vehicle_data']) && is_array($data['vehicle_data'])) {
             $vehicleDataArray = $data['vehicle_data'];
             // Asegurar que la placa esté incluida en vehicle_data
-            if (!isset($vehicleDataArray['plate']) && isset($data['plate'])) {
+            if (! isset($vehicleDataArray['plate']) && isset($data['plate'])) {
                 $vehicleDataArray['plate'] = $data['plate'];
             }
             $vehicleData = VehicleDTO::fromArray($vehicleDataArray);
@@ -47,4 +46,3 @@ class EntryVehicleDTO
         ];
     }
 }
-

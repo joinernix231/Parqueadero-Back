@@ -10,8 +10,7 @@ class VehicleDTO
         public readonly string $ownerName = '',
         public readonly string $phone = '',
         public readonly string $vehicleType = 'car'
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -35,8 +34,3 @@ class VehicleDTO
         ];
     }
 }
-
-
-
-
-

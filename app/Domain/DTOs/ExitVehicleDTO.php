@@ -8,8 +8,7 @@ class ExitVehicleDTO
         public readonly ?int $ticketId = null,
         public readonly ?string $plate = null,
         public readonly ?string $exitTime = null
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -29,8 +28,3 @@ class ExitVehicleDTO
         ];
     }
 }
-
-
-
-
-

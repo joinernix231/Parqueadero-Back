@@ -24,8 +24,7 @@ class EntryVehicleUseCase
         private VehicleValidationService $vehicleValidationService,
         private RegisterVehicleUseCase $registerVehicleUseCase,
         private DateTimeService $dateTimeService
-    ) {
-    }
+    ) {}
 
     public function execute(EntryVehicleDTO $dto, int $guardId): ParkingTicket
     {
@@ -36,32 +35,32 @@ class EntryVehicleUseCase
             // Verificar que el vehículo no tenga un ticket activo
             $activeTicket = $this->parkingTicketRepository->findActiveByVehicle($vehicle->getId());
             if ($activeTicket) {
-                throw new \Exception('El vehículo ya tiene un ticket activo');
+                throw new \Exception('This vehicle already has an active ticket');
             }
 
             // Obtener estacionamiento
             $parkingLot = $this->parkingLotRepository->findById($dto->parkingLotId);
-            if (!$parkingLot) {
-                throw new \Exception('Estacionamiento no encontrado');
+            if (! $parkingLot) {
+                throw new \Exception('Parking lot not found');
             }
 
-            if (!$parkingLot->isActive()) {
-                throw new \Exception('El estacionamiento no está activo');
+            if (! $parkingLot->isActive()) {
+                throw new \Exception('The parking lot is not active');
             }
 
             // Obtener espacio
             $parkingSpot = $this->parkingSpotRepository->findById($dto->parkingSpotId);
-            if (!$parkingSpot) {
-                throw new \Exception('Espacio no encontrado');
+            if (! $parkingSpot) {
+                throw new \Exception('Parking spot not found');
             }
 
-            if (!$parkingSpot->isAvailable()) {
-                throw new \Exception('El espacio no está disponible');
+            if (! $parkingSpot->isAvailable()) {
+                throw new \Exception('The parking spot is not available');
             }
 
             // Verificar que el espacio pertenezca al estacionamiento
             if ($parkingSpot->getParkingLotId() !== $parkingLot->getId()) {
-                throw new \Exception('El espacio no pertenece al estacionamiento');
+                throw new \Exception('The parking spot does not belong to this parking lot');
             }
 
             // Ocupar espacio
@@ -88,9 +87,10 @@ class EntryVehicleUseCase
     {
         if ($dto->vehicleId) {
             $vehicle = $this->vehicleRepository->findById($dto->vehicleId);
-            if (!$vehicle) {
-                throw new \Exception('Vehículo no encontrado');
+            if (! $vehicle) {
+                throw new \Exception('Vehicle not found');
             }
+
             return $vehicle;
         }
 
@@ -106,7 +106,7 @@ class EntryVehicleUseCase
             // Crear vehículo si no existe y se proporcionaron los datos
             if ($dto->vehicleData) {
                 $vehicleDto = $dto->vehicleData;
-                
+
                 // Asegurar que la placa esté en el VehicleDTO
                 // Si no tiene placa, crear uno nuevo con la placa obtenida
                 if (empty($vehicleDto->plate)) {
@@ -117,19 +117,18 @@ class EntryVehicleUseCase
                         vehicleType: $vehicleDto->vehicleType
                     );
                 }
-                
+
                 // Validar datos requeridos
                 if (empty($vehicleDto->ownerName) || empty($vehicleDto->phone) || empty($vehicleDto->plate)) {
-                    throw new \Exception('Se requieren los datos completos del vehículo (placa, propietario y teléfono)');
+                    throw new \Exception('Complete vehicle data is required (license plate, owner, and phone)');
                 }
-                
+
                 return $this->registerVehicleUseCase->execute($vehicleDto);
             }
 
-            throw new \Exception('Vehículo no encontrado. Se requieren los datos del vehículo para registrarlo.');
+            throw new \Exception('Vehicle not found. Provide vehicle data to register a new vehicle.');
         }
 
-        throw new \Exception('Se requiere vehicle_id o plate (dentro de vehicle_data)');
+        throw new \Exception('vehicle_id or plate (inside vehicle_data) is required');
     }
 }
-

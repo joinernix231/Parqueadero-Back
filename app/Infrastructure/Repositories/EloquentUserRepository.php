@@ -11,18 +11,21 @@ class EloquentUserRepository implements UserRepositoryInterface
     public function findByEmail(string $email): ?User
     {
         $model = UserModel::where('email', $email)->first();
+
         return $model ? $this->toEntity($model) : null;
     }
 
     public function findById(int $id): ?User
     {
         $model = UserModel::find($id);
+
         return $model ? $this->toEntity($model) : null;
     }
 
     public function create(array $data): User
     {
         $model = UserModel::create($data);
+
         return $this->toEntity($model);
     }
 
@@ -45,7 +48,7 @@ class EloquentUserRepository implements UserRepositoryInterface
     {
         // Get password directly from attributes since it's in hidden array
         $password = $model->getAttributes()['password'] ?? $model->password;
-        
+
         return new User(
             id: $model->id,
             name: $model->name,
@@ -57,4 +60,3 @@ class EloquentUserRepository implements UserRepositoryInterface
         );
     }
 }
-

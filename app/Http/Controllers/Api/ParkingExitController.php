@@ -18,7 +18,8 @@ class ParkingExitController extends Controller
         try {
             $dto = ExitVehicleDTO::fromArray($request->validated());
             $ticket = $this->exitVehicleUseCase->execute($dto, $request->user()->id);
-            return $this->sendResponse(new ParkingTicketResource($ticket), 'Salida registrada correctamente');
+
+            return $this->sendResponse(new ParkingTicketResource($ticket), 'Exit registered successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }

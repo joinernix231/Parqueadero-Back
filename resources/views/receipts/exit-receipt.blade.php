@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo de Salida - Ticket #{{ $ticket->getId() }}</title>
+    <title>Exit Receipt - Ticket #{{ $ticket->getId() }}</title>
     <style>
         * {
             margin: 0;
@@ -129,91 +129,90 @@
             <p>{{ $parkingLot->getAddress() }}</p>
         </div>
 
-        <div class="receipt-title">Recibo de Salida</div>
+        <div class="receipt-title">Exit Receipt</div>
 
         <div class="ticket-number">
             Ticket #{{ $ticket->getId() }}
         </div>
 
         <div class="section">
-            <div class="section-title">Información del Vehículo</div>
+            <div class="section-title">Vehicle Information</div>
             <div class="info-row">
-                <span class="info-label">Placa:</span>
+                <span class="info-label">License plate:</span>
                 <span class="info-value">{{ $vehicle->getPlate() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Propietario:</span>
+                <span class="info-label">Owner:</span>
                 <span class="info-value">{{ $vehicle->getOwnerName() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Tipo:</span>
+                <span class="info-label">Type:</span>
                 <span class="info-value">{{ ucfirst($vehicle->getVehicleType()) }}</span>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Información del Estacionamiento</div>
+            <div class="section-title">Parking Information</div>
             <div class="info-row">
-                <span class="info-label">Estacionamiento:</span>
+                <span class="info-label">Parking lot:</span>
                 <span class="info-value">{{ $parkingLot->getName() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Espacio:</span>
+                <span class="info-label">Spot:</span>
                 <span class="info-value">{{ $parkingSpot ? $parkingSpot->getSpotNumber() : 'N/A' }}</span>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Tiempo de Estacionamiento</div>
+            <div class="section-title">Parking Duration</div>
             <div class="info-row">
-                <span class="info-label">Hora de Entrada:</span>
+                <span class="info-label">Entry time:</span>
                 <span class="info-value">{{ $entryTime }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Hora de Salida:</span>
+                <span class="info-label">Exit time:</span>
                 <span class="info-value">{{ $exitTime }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Tiempo Total:</span>
-                <span class="info-value">{{ number_format($totalHours, 2) }} horas</span>
+                <span class="info-label">Total time:</span>
+                <span class="info-value">{{ number_format($totalHours, 2) }} hours</span>
             </div>
         </div>
 
         <div class="total-section">
-            <div class="section-title" style="border: none; padding: 0; margin-bottom: 10px;">Detalle de Cobro</div>
+            <div class="section-title" style="border: none; padding: 0; margin-bottom: 10px;">Charges</div>
             <div class="total-row">
-                <span>Tarifa por Hora:</span>
+                <span>Hourly rate:</span>
                 <span>${{ number_format($hourlyRateApplied, 2) }}</span>
             </div>
             <div class="total-row">
-                <span>Horas Estacionado:</span>
+                <span>Hours parked:</span>
                 <span>{{ number_format($totalHours, 2) }}</span>
             </div>
             <div class="total-row final">
-                <span>TOTAL A PAGAR:</span>
+                <span>TOTAL DUE:</span>
                 <span>${{ number_format($totalAmount, 2) }}</span>
             </div>
         </div>
 
         @if($isPaid && $paymentMethod)
         <div class="payment-info">
-            <strong>PAGO REALIZADO</strong><br>
-            Método: {{ ucfirst($paymentMethod) }}<br>
+            <strong>PAID</strong><br>
+            Method: {{ ucfirst($paymentMethod) }}<br>
             @if($paymentTime)
-            Fecha: {{ $paymentTime }}
+            Date: {{ $paymentTime }}
             @endif
         </div>
         @endif
 
         <div class="qr-placeholder">
-            [Código QR del Ticket]
+            [Ticket QR code]
         </div>
 
         <div class="footer">
-            <p>Gracias por utilizar nuestros servicios</p>
-            <p>Generado el {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Thank you for using our services</p>
+            <p>Generated on {{ now()->format('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>
 </html>
-

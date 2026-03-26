@@ -6,11 +6,7 @@ use Exception;
 
 class VehicleNotFoundException extends Exception
 {
-    protected $message = 'Vehículo no encontrado';
+    protected $message = 'Vehicle not found';
+
     protected $code = 404;
 }
-
-
-
-
-

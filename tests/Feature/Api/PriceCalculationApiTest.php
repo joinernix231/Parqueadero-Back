@@ -53,7 +53,7 @@ class PriceCalculationApiTest extends TestCase
             'exit_time' => null,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/parking/tickets/{$ticket->id}/calculate-price");
 
         $response->assertStatus(200);
@@ -91,7 +91,7 @@ class PriceCalculationApiTest extends TestCase
             'exit_time' => now(),
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/parking/tickets/{$ticket->id}/calculate-price");
 
         $response->assertStatus(422);
@@ -101,7 +101,7 @@ class PriceCalculationApiTest extends TestCase
     {
         $token = $this->authenticate();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking/tickets/99999/calculate-price');
 
         $response->assertStatus(404);
@@ -116,5 +116,3 @@ class PriceCalculationApiTest extends TestCase
         $response->assertStatus(401);
     }
 }
-
-

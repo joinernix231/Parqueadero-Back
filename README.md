@@ -1,95 +1,98 @@
-# Parking Management System - Backend
+# Parking Management System — Backend
 
-Sistema de gestión de estacionamientos construido con Laravel 11 y Clean Architecture.
+Parking management API built with **Laravel 11** and **Clean Architecture**.
 
-## Arquitectura
+## Architecture
 
-El proyecto sigue Clean Architecture con separación clara de capas:
+Layers:
 
-- **Domain/**: Entidades, Interfaces de Repositories, Domain Services, DTOs
-- **Application/**: Use Cases y Actions
-- **Infrastructure/**: Implementaciones de Repositories (Eloquent)
-- **Http/**: Controllers, Requests, Resources
+- **Domain/** — Entities, repository interfaces, domain services, DTOs  
+- **Application/** — Use cases and actions  
+- **Infrastructure/** — Eloquent repository implementations  
+- **Http/** — Controllers, form requests, API resources  
 
-## Stack Tecnológico
+## Stack
 
-- Laravel 11
-- PHP 8.3
-- MySQL 8.0
-- Laravel Sanctum (Autenticación)
-- Docker & Docker Compose
+- Laravel 11  
+- PHP 8.3  
+- MySQL 8 (or MariaDB)  
+- Laravel Sanctum (API tokens)  
+- Docker & Docker Compose (optional)  
 
-## Instalación
+## Local setup
 
-1. Clonar el repositorio
-2. Copiar `.env.example` a `.env` y configurar variables
-3. Ejecutar `docker-compose up -d`
-4. Ejecutar migraciones: `php artisan migrate`
-5. Ejecutar seeders: `php artisan db:seed`
+1. Clone the repository.  
+2. Copy `.env.example` to `.env` and set `APP_KEY`, database, and mail as needed.  
+3. With Docker: `docker-compose up -d`, then run Artisan inside the app container.  
+4. Run migrations: `php artisan migrate`  
+5. (Optional) Seed demo data: `php artisan db:seed`  
 
-## Estructura del Proyecto
+## Project layout
 
 ```
 app/
-├── Domain/              # Capa de Dominio
-│   ├── Entities/       # Entidades de negocio
-│   ├── Repositories/   # Interfaces
-│   ├── Services/       # Domain Services
-│   └── DTOs/          # Data Transfer Objects
-├── Application/        # Capa de Aplicación
-│   ├── UseCases/      # Casos de uso
-│   └── Actions/        # Orquestación
-├── Infrastructure/     # Capa de Infraestructura
-│   └── Repositories/   # Implementaciones Eloquent
-└── Http/              # Capa de Presentación
-    ├── Controllers/   # Controladores API
-    ├── Requests/      # Validación
-    └── Resources/     # Transformación de respuestas
+├── Domain/              # Domain layer
+│   ├── Entities/
+│   ├── Repositories/    # Interfaces
+│   ├── Services/
+│   └── DTOs/
+├── Application/       # Application layer
+│   ├── UseCases/
+│   └── Actions/
+├── Infrastructure/    # Infrastructure
+│   └── Repositories/  # Eloquent implementations
+└── Http/              # HTTP layer
+    ├── Controllers/
+    ├── Requests/
+    └── Resources/
 ```
 
-## Endpoints API
+## API overview
 
-### Autenticación
-- `POST /api/login` - Iniciar sesión
-- `POST /api/logout` - Cerrar sesión
+All routes are prefixed with `/api` unless your web server maps the app root differently.
 
-### Vehículos
-- `GET /api/vehicles` - Listar vehículos
-- `POST /api/vehicles` - Registrar vehículo
-- `GET /api/vehicles/{id}` - Obtener vehículo
-- `GET /api/vehicles/search/plate` - Buscar por placa
+| Area | Method & path | Description |
+|------|----------------|-------------|
+| Auth | `POST /api/login`, `POST /api/logout` | Token login / revoke |
+| Vehicles | `GET/POST /api/vehicles`, `GET /api/vehicles/{id}`, `GET /api/vehicles/search-by-plate` | CRUD & plate lookup |
+| Parking lots | `GET/POST /api/parking-lots`, `GET/PUT /api/parking-lots/{id}` | Lot management |
+| Spots | `GET /api/parking-spots/available?parking_lot_id=` | Available spots |
+| Parking ops | `POST /api/parking/entry`, `POST /api/parking/exit`, `POST /api/parking/payment` | Entry, exit, payment |
+| Queries | `GET /api/parking/current`, `GET /api/parking/history`, ticket by id/plate | Lists & lookups |
 
-### Estacionamientos
-- `GET /api/parking-lots` - Listar estacionamientos
-- `GET /api/parking-lots/{id}` - Obtener estacionamiento
-- `GET /api/parking-spots/available` - Espacios disponibles
+See **`API_DOCUMENTATION.md`** for request/response examples and error formats.
 
-### Parqueadero
-- `POST /api/parking/entry` - Registrar entrada
-- `POST /api/parking/exit` - Registrar salida
-- `POST /api/parking/payment` - Procesar pago
-- `GET /api/parking/current` - Vehículos actuales
-- `GET /api/parking/history` - Historial
+## SOLID (summary)
 
-## Principios SOLID Aplicados
+- Single responsibility per class  
+- Open/closed via interfaces and new use cases  
+- Liskov-safe repository contracts  
+- Small, focused interfaces  
+- Dependencies on abstractions (constructor injection)  
 
-- **Single Responsibility**: Cada clase tiene una única responsabilidad
-- **Open/Closed**: Abierto para extensión, cerrado para modificación
-- **Liskov Substitution**: Interfaces intercambiables
-- **Interface Segregation**: Interfaces específicas y pequeñas
-- **Dependency Inversion**: Dependencias de abstracciones
+## Tests
 
-## Testing
-
-Ejecutar tests:
 ```bash
+composer install
+cp .env.example .env   # configure DB for testing
+php artisan key:generate --force
+php artisan migrate --force
 php artisan test
 ```
 
-## Documentación
+## CI (GitHub Actions)
 
-La documentación completa de la API se encuentra en `/api/documentation` (cuando se configure Swagger).
+On push and pull requests, **CI** runs:
 
-## Licencia
+1. **PSR & code style** — strict Composer autoload check + Laravel Pint (`composer cs-check`).  
+2. **Tests** — MariaDB service, migrations, `php artisan test`, then `php artisan optimize`.  
+
+Workflow: `.github/workflows/ci.yml`  
+Composite setup: `.github/actions/php_install/action.yml`  
+
+Local style check: `composer cs-check`  
+Auto-fix style: `composer cs-fix`  
+
+## License
 
 MIT

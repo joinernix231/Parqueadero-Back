@@ -18,7 +18,7 @@ class UserResource extends JsonResource
         /** @var User $user */
         $user = $this->resource instanceof User ? $this->resource : null;
 
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 
@@ -31,8 +31,3 @@ class UserResource extends JsonResource
         ];
     }
 }
-
-
-
-
-

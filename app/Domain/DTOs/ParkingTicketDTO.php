@@ -19,8 +19,7 @@ class ParkingTicketDTO
         public readonly bool $isPaid = false,
         public readonly ?string $paymentMethod = null,
         public readonly ?string $paymentTime = null
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -62,8 +61,3 @@ class ParkingTicketDTO
         ];
     }
 }
-
-
-
-
-

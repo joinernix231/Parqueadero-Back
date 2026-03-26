@@ -16,7 +16,7 @@ class DashboardController extends Controller
         try {
             return $this->sendResponse(
                 $this->getDashboardStatsUseCase->execute(),
-                'Estadísticas del dashboard obtenidas correctamente'
+                'Dashboard statistics retrieved successfully'
             );
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);

@@ -18,7 +18,7 @@ class CurrentTicketsRequest extends FormRequest
             $paginate = $this->input('paginate');
             if (is_string($paginate)) {
                 $this->merge([
-                    'paginate' => filter_var($paginate, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false
+                    'paginate' => filter_var($paginate, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false,
                 ]);
             }
         }
@@ -39,8 +39,8 @@ class CurrentTicketsRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'parking_lot_id.exists' => 'El estacionamiento no existe.',
-            'search.max' => 'La búsqueda no puede superar los 100 caracteres.',
+            'parking_lot_id.exists' => 'The parking lot does not exist.',
+            'search.max' => 'Search may not exceed 100 characters.',
         ];
     }
 
@@ -73,4 +73,3 @@ class CurrentTicketsRequest extends FormRequest
         return $this->boolean('paginate') || $this->filled('page') || $this->filled('per_page');
     }
 }
-

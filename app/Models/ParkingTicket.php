@@ -78,8 +78,3 @@ class ParkingTicket extends Model
         return $this->belongsTo(User::class, 'exit_guard_id');
     }
 }
-
-
-
-
-

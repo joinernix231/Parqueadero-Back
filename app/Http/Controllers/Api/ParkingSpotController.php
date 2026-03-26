@@ -12,24 +12,24 @@ class ParkingSpotController extends Controller
 {
     public function __construct(
         private GetAvailableSpotsUseCase $getAvailableSpotsUseCase
-    ) {
-    }
+    ) {}
 
     public function available(Request $request): JsonResponse
     {
         try {
             $parkingLotId = $request->get('parking_lot_id');
-            if (!$parkingLotId) {
+            if (! $parkingLotId) {
                 return $this->sendError(
-                    'parking_lot_id es requerido',
+                    'parking_lot_id is required',
                     422
                 );
             }
 
             $spots = $this->getAvailableSpotsUseCase->execute($parkingLotId);
+
             return $this->sendResponse(
                 ParkingSpotResource::collection($spots),
-                'Espacios disponibles obtenidos correctamente'
+                'Available spots retrieved successfully'
             );
         } catch (Throwable $e) {
             return $this->sendError(
@@ -39,8 +39,3 @@ class ParkingSpotController extends Controller
         }
     }
 }
-
-
-
-
-

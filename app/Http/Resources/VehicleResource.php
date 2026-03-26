@@ -18,7 +18,7 @@ class VehicleResource extends JsonResource
         /** @var Vehicle $vehicle */
         $vehicle = $this->resource instanceof Vehicle ? $this->resource : null;
 
-        if (!$vehicle) {
+        if (! $vehicle) {
             return [];
         }
 
@@ -32,8 +32,3 @@ class VehicleResource extends JsonResource
         ];
     }
 }
-
-
-
-
-

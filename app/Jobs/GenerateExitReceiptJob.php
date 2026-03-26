@@ -17,6 +17,7 @@ class GenerateExitReceiptJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $timeout = 120;
 
     /**
@@ -24,8 +25,7 @@ class GenerateExitReceiptJob implements ShouldQueue
      */
     public function __construct(
         public int $ticketId
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
@@ -37,21 +37,21 @@ class GenerateExitReceiptJob implements ShouldQueue
         try {
             // Recargar el ticket desde el repositorio
             $ticket = $ticketRepository->findById($this->ticketId);
-            
-            if (!$ticket) {
-                throw new \Exception('Ticket no encontrado con ID: ' . $this->ticketId);
+
+            if (! $ticket) {
+                throw new \Exception('Ticket not found with ID: '.$this->ticketId);
             }
 
-            $this->safeLog('info', 'Generando recibo de salida para ticket ID: ' . $this->ticketId);
+            $this->safeLog('info', 'Generating exit receipt for ticket ID: '.$this->ticketId);
 
             // Verificar que el ticket tenga hora de salida
-            if (!$ticket->getExitTime()) {
-                throw new \Exception('No se puede generar recibo de salida sin hora de salida registrada');
+            if (! $ticket->getExitTime()) {
+                throw new \Exception('Cannot generate exit receipt without a recorded exit time');
             }
 
             // Asegurar que el directorio existe
             $directory = 'receipts/exit';
-            if (!Storage::disk('local')->exists($directory)) {
+            if (! Storage::disk('local')->exists($directory)) {
                 Storage::disk('local')->makeDirectory($directory);
             }
 
@@ -59,12 +59,12 @@ class GenerateExitReceiptJob implements ShouldQueue
             $pdf = $receiptService->generateExitReceiptPdf($ticket);
 
             // Guardar el PDF en storage
-            $filename = $directory . '/recibo-salida-' . $ticket->getId() . '.pdf';
+            $filename = $directory.'/exit-receipt-'.$ticket->getId().'.pdf';
             Storage::disk('local')->put($filename, $pdf);
 
-            $this->safeLog('info', 'Recibo de salida generado exitosamente: ' . $filename);
+            $this->safeLog('info', 'Exit receipt generated successfully: '.$filename);
         } catch (\Exception $e) {
-            $this->safeLog('error', 'Error al generar recibo de salida para ticket ID: ' . $this->ticketId . ' - ' . $e->getMessage());
+            $this->safeLog('error', 'Failed to generate exit receipt for ticket ID: '.$this->ticketId.' - '.$e->getMessage());
 
             // Relanzar la excepción para que el job se reintente
             throw $e;
@@ -76,7 +76,7 @@ class GenerateExitReceiptJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $this->safeLog('error', 'Job de generación de recibo de salida falló definitivamente - Ticket ID: ' . $this->ticketId . ' - Error: ' . $exception->getMessage());
+        $this->safeLog('error', 'Exit receipt job failed permanently - Ticket ID: '.$this->ticketId.' - Error: '.$exception->getMessage());
     }
 
     /**
@@ -104,4 +104,3 @@ class GenerateExitReceiptJob implements ShouldQueue
         }
     }
 }
-

@@ -12,8 +12,7 @@ class Vehicle
         private string $vehicleType = 'car',
         private ?string $createdAt = null,
         private ?string $updatedAt = null
-    ) {
-    }
+    ) {}
 
     public function getId(): ?int
     {
@@ -80,14 +79,9 @@ class Vehicle
 
     public function setVehicleType(string $vehicleType): void
     {
-        if (!in_array($vehicleType, ['car', 'motorcycle', 'truck'])) {
+        if (! in_array($vehicleType, ['car', 'motorcycle', 'truck'])) {
             throw new \InvalidArgumentException("Invalid vehicle type: {$vehicleType}");
         }
         $this->vehicleType = $vehicleType;
     }
 }
-
-
-
-
-

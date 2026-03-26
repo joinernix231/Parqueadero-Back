@@ -12,7 +12,7 @@ class ParkingLotFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company() . ' Estacionamiento',
+            'name' => $this->faker->company().' Estacionamiento',
             'address' => $this->faker->address(),
             'total_spots' => $this->faker->numberBetween(20, 100),
             'hourly_rate_day' => $this->faker->randomFloat(2, 2.0, 5.0),
@@ -23,8 +23,3 @@ class ParkingLotFactory extends Factory
         ];
     }
 }
-
-
-
-
-

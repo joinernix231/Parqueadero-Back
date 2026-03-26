@@ -27,4 +27,3 @@ interface ParkingTicketRepositoryInterface
 
     public function update(int $id, array $data): bool;
 }
-

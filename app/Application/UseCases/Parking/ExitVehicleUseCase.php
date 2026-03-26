@@ -21,26 +21,23 @@ class ExitVehicleUseCase
         private VehicleRepositoryInterface $vehicleRepository,
         private PricingService $pricingService,
         private DateTimeService $dateTimeService
-    ) {
-    }
+    ) {}
 
     public function execute(ExitVehicleDTO $dto, int $guardId): ParkingTicket
     {
         return DB::transaction(function () use ($dto, $guardId) {
             $ticket = $this->getTicket($dto);
-            if (!$ticket) {
-                throw new \Exception('Ticket no encontrado');
+            if (! $ticket) {
+                throw new \Exception('Ticket not found');
             }
 
-            if (!$ticket->isActive()) {
+            if (! $ticket->isActive()) {
                 throw new \Exception('El ticket ya tiene salida registrada');
             }
             $parkingLot = $this->parkingLotRepository->findById($ticket->getParkingLotId());
-            if (!$parkingLot) {
-                throw new \Exception('Estacionamiento no encontrado');
+            if (! $parkingLot) {
+                throw new \Exception('Parking lot not found');
             }
-
-
 
             // Normalizar exit_time de UTC a zona horaria local si viene del frontend
             $exitTime = $this->dateTimeService->normalizeFromUtc($dto->exitTime);
@@ -56,11 +53,11 @@ class ExitVehicleUseCase
 
             // Actualizar ticket
             $this->parkingTicketRepository->update($ticket->getId(), [
-                'exit_time'            => $exitTime,
-                'exit_guard_id'        => $guardId,
-                'total_hours'          => $totalHours,
-                'hourly_rate_applied'  => $hourlyRateApplied,
-                'total_amount'         => $totalAmount,
+                'exit_time' => $exitTime,
+                'exit_guard_id' => $guardId,
+                'total_hours' => $totalHours,
+                'hourly_rate_applied' => $hourlyRateApplied,
+                'total_amount' => $totalAmount,
             ]);
 
             // Liberar espacio
@@ -82,16 +79,13 @@ class ExitVehicleUseCase
 
         if ($dto->plate) {
             $vehicle = $this->vehicleRepository->findByPlate($dto->plate);
-            if (!$vehicle) {
+            if (! $vehicle) {
                 return null;
             }
+
             return $this->parkingTicketRepository->findActiveByVehicle($vehicle->getId());
         }
 
         return null;
     }
 }
-
-
-
-

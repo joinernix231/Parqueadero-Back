@@ -33,7 +33,7 @@ class ParkingLotApiTest extends TestCase
         ParkingLot::factory()->count(3)->create();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking-lots');
 
         // Assert
@@ -53,7 +53,7 @@ class ParkingLotApiTest extends TestCase
         $lot = ParkingLot::factory()->create();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson("/api/parking-lots/{$lot->id}");
 
         // Assert
@@ -72,15 +72,10 @@ class ParkingLotApiTest extends TestCase
         $token = $this->authenticate();
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking-lots/99999');
 
         // Assert
         $response->assertStatus(404);
     }
 }
-
-
-
-
-

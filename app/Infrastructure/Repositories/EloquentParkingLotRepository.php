@@ -12,6 +12,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     public function findById(int $id): ?ParkingLot
     {
         $model = ParkingLotModel::find($id);
+
         return $model ? $this->toEntity($model) : null;
     }
 
@@ -19,7 +20,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     {
         return ParkingLotModel::where('is_active', true)
             ->get()
-            ->map(fn($model) => $this->toEntity($model))
+            ->map(fn ($model) => $this->toEntity($model))
             ->toArray();
     }
 
@@ -31,7 +32,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
             $query->where('is_active', $filters['is_active']);
         }
 
-        return $query->get()->map(fn($model) => $this->toEntity($model))->toArray();
+        return $query->get()->map(fn ($model) => $this->toEntity($model))->toArray();
     }
 
     public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
@@ -48,6 +49,7 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
     public function create(array $data): ParkingLot
     {
         $model = ParkingLotModel::create($data);
+
         return $this->toEntity($model);
     }
 
@@ -78,8 +80,3 @@ class EloquentParkingLotRepository implements ParkingLotRepositoryInterface
         );
     }
 }
-
-
-
-
-

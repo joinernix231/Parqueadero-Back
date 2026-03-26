@@ -48,8 +48,3 @@ class ParkingLot extends Model
         return $this->hasMany(ParkingTicket::class);
     }
 }
-
-
-
-
-

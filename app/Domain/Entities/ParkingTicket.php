@@ -5,7 +5,9 @@ namespace App\Domain\Entities;
 class ParkingTicket
 {
     private ?Vehicle $vehicle = null;
+
     private ?ParkingLot $parkingLot = null;
+
     private ?ParkingSpot $parkingSpot = null;
 
     public function __construct(
@@ -25,8 +27,7 @@ class ParkingTicket
         private ?string $paymentTime = null,
         private ?string $createdAt = null,
         private ?string $updatedAt = null
-    ) {
-    }
+    ) {}
 
     public function getVehicle(): ?Vehicle
     {
@@ -205,7 +206,7 @@ class ParkingTicket
 
     public function setPaymentMethod(?string $paymentMethod): void
     {
-        if ($paymentMethod !== null && !in_array($paymentMethod, ['cash', 'card', 'transfer'])) {
+        if ($paymentMethod !== null && ! in_array($paymentMethod, ['cash', 'card', 'transfer'])) {
             throw new \InvalidArgumentException("Invalid payment method: {$paymentMethod}");
         }
         $this->paymentMethod = $paymentMethod;

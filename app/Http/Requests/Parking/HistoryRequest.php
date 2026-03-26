@@ -28,16 +28,11 @@ class HistoryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'date_from.date' => 'La fecha desde debe ser válida.',
-            'date_to.date' => 'La fecha hasta debe ser válida.',
-            'date_to.after_or_equal' => 'La fecha hasta debe ser posterior o igual a la fecha desde.',
-            'parking_lot_id.exists' => 'El estacionamiento no existe.',
-            'status.in' => 'El estado debe ser: active o completed.',
+            'date_from.date' => 'Start date must be valid.',
+            'date_to.date' => 'End date must be valid.',
+            'date_to.after_or_equal' => 'End date must be on or after the start date.',
+            'parking_lot_id.exists' => 'The parking lot does not exist.',
+            'status.in' => 'Status must be one of: active, completed.',
         ];
     }
 }
-
-
-
-
-

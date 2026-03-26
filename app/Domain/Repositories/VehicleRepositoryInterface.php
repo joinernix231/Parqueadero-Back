@@ -19,8 +19,3 @@ interface VehicleRepositoryInterface
 
     public function update(int $id, array $data): bool;
 }
-
-
-
-
-

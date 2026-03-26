@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recibo de Entrada - Ticket #{{ $ticket->getId() }}</title>
+    <title>Entry Receipt - Ticket #{{ $ticket->getId() }}</title>
     <style>
         * {
             margin: 0;
@@ -110,65 +110,64 @@
             <p>{{ $parkingLot->getAddress() }}</p>
         </div>
 
-        <div class="receipt-title">Recibo de Entrada</div>
+        <div class="receipt-title">Entry Receipt</div>
 
         <div class="ticket-number">
             Ticket #{{ $ticket->getId() }}
         </div>
 
         <div class="section">
-            <div class="section-title">Información del Vehículo</div>
+            <div class="section-title">Vehicle Information</div>
             <div class="info-row">
-                <span class="info-label">Placa:</span>
+                <span class="info-label">License plate:</span>
                 <span class="info-value">{{ $vehicle->getPlate() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Propietario:</span>
+                <span class="info-label">Owner:</span>
                 <span class="info-value">{{ $vehicle->getOwnerName() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Tipo:</span>
+                <span class="info-label">Type:</span>
                 <span class="info-value">{{ ucfirst($vehicle->getVehicleType()) }}</span>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Información del Estacionamiento</div>
+            <div class="section-title">Parking Information</div>
             <div class="info-row">
-                <span class="info-label">Estacionamiento:</span>
+                <span class="info-label">Parking lot:</span>
                 <span class="info-value">{{ $parkingLot->getName() }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Espacio:</span>
+                <span class="info-label">Spot:</span>
                 <span class="info-value">{{ $parkingSpot ? $parkingSpot->getSpotNumber() : 'N/A' }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Tipo de Espacio:</span>
+                <span class="info-label">Spot type:</span>
                 <span class="info-value">{{ $parkingSpot ? ucfirst($parkingSpot->getSpotType()) : 'N/A' }}</span>
             </div>
         </div>
 
         <div class="section">
-            <div class="section-title">Información de Entrada</div>
+            <div class="section-title">Entry Information</div>
             <div class="info-row">
-                <span class="info-label">Fecha y Hora:</span>
+                <span class="info-label">Date &amp; time:</span>
                 <span class="info-value">{{ $entryTime }}</span>
             </div>
         </div>
 
         <div class="qr-placeholder">
-            [Código QR del Ticket]
+            [Ticket QR code]
         </div>
 
         <div class="warning">
-            <strong>IMPORTANTE:</strong> Conserve este recibo para su salida. El ticket será requerido al momento de retirar su vehículo.
+            <strong>IMPORTANT:</strong> Keep this receipt for exit. The ticket will be required when you leave.
         </div>
 
         <div class="footer">
-            <p>Gracias por utilizar nuestros servicios</p>
-            <p>Generado el {{ now()->format('d/m/Y H:i:s') }}</p>
+            <p>Thank you for using our services</p>
+            <p>Generated on {{ now()->format('d/m/Y H:i:s') }}</p>
         </div>
     </div>
 </body>
 </html>
-

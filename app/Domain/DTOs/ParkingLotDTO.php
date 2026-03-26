@@ -14,8 +14,7 @@ class ParkingLotDTO
         public readonly string $dayStartTime = '06:00',
         public readonly string $dayEndTime = '20:00',
         public readonly bool $isActive = true
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -47,8 +46,3 @@ class ParkingLotDTO
         ];
     }
 }
-
-
-
-
-

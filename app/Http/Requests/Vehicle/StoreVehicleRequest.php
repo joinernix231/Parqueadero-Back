@@ -31,18 +31,13 @@ class StoreVehicleRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'plate.required' => 'La placa es obligatoria.',
-            'plate.unique' => 'La placa ya está registrada.',
-            'plate.regex' => 'El formato de la placa no es válido.',
-            'owner_name.required' => 'El nombre del propietario es obligatorio.',
-            'phone.required' => 'El teléfono es obligatorio.',
-            'vehicle_type.required' => 'El tipo de vehículo es obligatorio.',
-            'vehicle_type.in' => 'El tipo de vehículo debe ser: car, motorcycle o truck.',
+            'plate.required' => 'License plate is required.',
+            'plate.unique' => 'This license plate is already registered.',
+            'plate.regex' => 'License plate format is invalid.',
+            'owner_name.required' => 'Owner name is required.',
+            'phone.required' => 'Phone is required.',
+            'vehicle_type.required' => 'Vehicle type is required.',
+            'vehicle_type.in' => 'Vehicle type must be one of: car, motorcycle, truck.',
         ];
     }
 }
-
-
-
-
-

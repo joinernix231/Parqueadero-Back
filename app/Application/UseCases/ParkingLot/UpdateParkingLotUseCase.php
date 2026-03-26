@@ -16,8 +16,8 @@ class UpdateParkingLotUseCase
     public function execute(int $id, array $data): ParkingLot
     {
         $lot = $this->parkingLotRepository->findById($id);
-        if (!$lot) {
-            throw new \RuntimeException('Estacionamiento no encontrado');
+        if (! $lot) {
+            throw new \RuntimeException('Parking lot not found');
         }
 
         $this->parkingLotRepository->update($id, $data);

@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Modern Filter Criteria System
- * 
+ *
  * Syntax: field|operator|value;field2|operator2|value2
- * 
+ *
  * Operators:
  * - eq, = : equals
  * - ne, != : not equals
@@ -25,10 +25,10 @@ use Illuminate\Database\Eloquent\Builder;
  * - between : value is comma-separated (min,max)
  * - date : date comparison (value format: Y-m-d)
  * - dateBetween : date range (value format: Y-m-d,Y-m-d)
- * 
+ *
  * Relations:
  * - relation.field|operator|value : filter by related model
- * 
+ *
  * Examples:
  * - plate|like|ABC
  * - owner_name|like|Juan
@@ -39,8 +39,11 @@ use Illuminate\Database\Eloquent\Builder;
 class FiltersCriteria implements FilterCriteriaInterface
 {
     protected array $filters;
+
     protected array $allowedFields;
+
     protected array $allowedRelations;
+
     protected array $dateFields;
 
     public function __construct(
@@ -62,7 +65,7 @@ class FiltersCriteria implements FilterCriteriaInterface
         } else {
             $this->filters = [];
         }
-        
+
         $this->allowedFields = $allowedFields;
         $this->allowedRelations = $allowedRelations;
         $this->dateFields = $dateFields;
@@ -129,11 +132,12 @@ class FiltersCriteria implements FilterCriteriaInterface
         // Check if field is a relation
         if (str_contains($field, '.')) {
             $this->applyRelationFilter($query, $field, $operator, $value);
+
             return;
         }
 
         // Validate field is allowed
-        if (!empty($this->allowedFields) && !in_array($field, $this->allowedFields)) {
+        if (! empty($this->allowedFields) && ! in_array($field, $this->allowedFields)) {
             return;
         }
 
@@ -150,7 +154,7 @@ class FiltersCriteria implements FilterCriteriaInterface
         $relationField = $parts[1];
 
         // Validate relation is allowed
-        if (!empty($this->allowedRelations) && !in_array($relation, $this->allowedRelations)) {
+        if (! empty($this->allowedRelations) && ! in_array($relation, $this->allowedRelations)) {
             return;
         }
 
@@ -175,7 +179,7 @@ class FiltersCriteria implements FilterCriteriaInterface
             'datebetween', 'date_between' => $this->applyDateBetweenFilter($query, $field, $value),
             'date' => $this->applyDateFilter($query, $field, $value),
             'like' => $query->where($field, 'like', "%{$value}%"),
-            'ilike' => $query->whereRaw("LOWER({$field}) LIKE ?", ['%' . strtolower($value) . '%']),
+            'ilike' => $query->whereRaw("LOWER({$field}) LIKE ?", ['%'.strtolower($value).'%']),
             'eq', '=', '==' => $query->where($field, '=', $value),
             'ne', '!=', '<>' => $query->where($field, '!=', $value),
             'gt', '>' => $query->where($field, '>', $value),
@@ -193,8 +197,8 @@ class FiltersCriteria implements FilterCriteriaInterface
     {
         $values = array_map('trim', explode(',', $value));
         $values = array_filter($values);
-        
-        if (!empty($values)) {
+
+        if (! empty($values)) {
             $query->whereIn($field, $values);
         }
     }
@@ -206,8 +210,8 @@ class FiltersCriteria implements FilterCriteriaInterface
     {
         $values = array_map('trim', explode(',', $value));
         $values = array_filter($values);
-        
-        if (!empty($values)) {
+
+        if (! empty($values)) {
             $query->whereNotIn($field, $values);
         }
     }
@@ -218,7 +222,7 @@ class FiltersCriteria implements FilterCriteriaInterface
     protected function applyBetweenFilter(Builder $query, string $field, string $value): void
     {
         $values = array_map('trim', explode(',', $value));
-        
+
         if (count($values) === 2) {
             $query->whereBetween($field, $values);
         }
@@ -243,7 +247,7 @@ class FiltersCriteria implements FilterCriteriaInterface
     protected function applyDateBetweenFilter(Builder $query, string $field, string $value): void
     {
         $values = array_map('trim', explode(',', $value));
-        
+
         if (count($values) === 2) {
             try {
                 $startDate = \Carbon\Carbon::parse($values[0])->startOfDay();
@@ -263,7 +267,7 @@ class FiltersCriteria implements FilterCriteriaInterface
         if (empty($array)) {
             return false;
         }
-        
+
         // Check if keys are numeric and sequential (indexed array)
         return array_keys($array) !== range(0, count($array) - 1);
     }
@@ -274,7 +278,7 @@ class FiltersCriteria implements FilterCriteriaInterface
     protected function convertAssociativeToFilters(array $filters, array $allowedFields = [], array $dateFields = []): array
     {
         $converted = [];
-        
+
         foreach ($filters as $key => $value) {
             // Skip empty values
             if ($value === null || $value === '') {
@@ -282,25 +286,25 @@ class FiltersCriteria implements FilterCriteriaInterface
             }
 
             // If allowedFields is specified, only include allowed fields
-            if (!empty($allowedFields) && !in_array($key, $allowedFields)) {
+            if (! empty($allowedFields) && ! in_array($key, $allowedFields)) {
                 continue;
             }
 
             // Determine operator based on field type
             $operator = 'eq';
-            
+
             if (in_array($key, $dateFields)) {
                 $operator = 'date';
-            } elseif (str_contains((string)$value, ',')) {
+            } elseif (str_contains((string) $value, ',')) {
                 $operator = 'in';
-            } elseif (strlen((string)$value) > 3 && (str_contains((string)$value, '%') || preg_match('/[a-zA-Z]/', (string)$value))) {
+            } elseif (strlen((string) $value) > 3 && (str_contains((string) $value, '%') || preg_match('/[a-zA-Z]/', (string) $value))) {
                 $operator = 'like';
             }
 
             $converted[] = [
                 'field' => $key,
                 'operator' => $operator,
-                'value' => (string)$value,
+                'value' => (string) $value,
             ];
         }
 
@@ -313,15 +317,15 @@ class FiltersCriteria implements FilterCriteriaInterface
     public static function fromRequest(array $requestData, array $allowedFields = [], array $allowedRelations = [], array $dateFields = []): self
     {
         $filters = [];
-        
+
         foreach ($requestData as $key => $value) {
-            if (empty($value) || !in_array($key, $allowedFields)) {
+            if (empty($value) || ! in_array($key, $allowedFields)) {
                 continue;
             }
 
             // Determine operator based on field type
             $operator = 'eq';
-            
+
             if (in_array($key, $dateFields)) {
                 if (str_contains($value, ',')) {
                     $operator = 'dateBetween';
@@ -344,7 +348,3 @@ class FiltersCriteria implements FilterCriteriaInterface
         return new self($filters, $allowedFields, $allowedRelations, $dateFields);
     }
 }
-
-
-
-

@@ -12,8 +12,7 @@ class User
         private string $role = 'operator',
         private ?string $createdAt = null,
         private ?string $updatedAt = null
-    ) {
-    }
+    ) {}
 
     public function getId(): ?int
     {
@@ -87,14 +86,9 @@ class User
 
     public function setRole(string $role): void
     {
-        if (!in_array($role, ['admin', 'operator', 'guard'])) {
+        if (! in_array($role, ['admin', 'operator', 'guard'])) {
             throw new \InvalidArgumentException("Invalid role: {$role}");
         }
         $this->role = $role;
     }
 }
-
-
-
-
-

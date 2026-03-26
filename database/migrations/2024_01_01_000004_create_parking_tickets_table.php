@@ -45,8 +45,3 @@ class CreateParkingTicketsTable extends Migration
         Schema::dropIfExists('parking_tickets');
     }
 }
-
-
-
-
-

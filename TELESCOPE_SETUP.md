@@ -1,67 +1,61 @@
-# Configuración de Laravel Telescope
+# Laravel Telescope setup
 
-Telescope ha sido agregado al proyecto. Para completar la instalación, sigue estos pasos:
+Telescope is included as a **dev** dependency. Use it only in non-production or tightly controlled environments.
 
-## Requisitos
+## Requirements
 
-- PHP 8.2 o superior (el proyecto requiere PHP 8.3 según composer.json)
-- Composer instalado
+- PHP 8.3+ (see `composer.json`)  
+- Composer  
 
-## Pasos para activar Telescope
+## Enable Telescope
 
-### Opción 1: Usando el script (Windows)
-Ejecuta el archivo `install-telescope.bat` cuando tengas PHP 8.2+ disponible.
+### Option A: Windows helper
 
-### Opción 2: Comandos manuales
+Run `install-telescope.bat` when PHP 8.3+ is on your PATH.
 
-1. **Actualizar composer.lock e instalar Telescope** (cuando tengas PHP 8.2+):
+### Option B: Manual steps
+
+1. **Install** (if not already in `composer.json`):
+
    ```bash
    composer require laravel/telescope --dev
    ```
-   
-   Si tienas problemas con la versión de PHP, puedes usar temporalmente:
+
+   If Composer complains about the local PHP version:
+
    ```bash
    composer require laravel/telescope --dev --ignore-platform-reqs
    ```
-   ⚠️ **Nota**: Solo usa `--ignore-platform-reqs` si estás seguro de que tu servidor web tiene PHP 8.2+
 
-2. **Publicar la configuración de Telescope** (opcional, ya está creada manualmente):
+   Use `--ignore-platform-reqs` only when your runtime PHP version is actually compatible.
+
+2. **Publish config** (optional if config already exists):
+
    ```bash
    php artisan vendor:publish --tag=telescope-config
    ```
 
-3. **Ejecutar las migraciones**:
+3. **Migrate**:
+
    ```bash
    php artisan migrate
    ```
-   Esto creará las tablas necesarias para Telescope (`telescope_entries`, `telescope_entries_tags`, `telescope_monitoring`).
 
-4. **Configurar el acceso** (opcional):
-   
-   Edita `app/Providers/TelescopeServiceProvider.php` y agrega los emails de los usuarios que pueden acceder a Telescope en el método `gate()`:
-   
+   Creates `telescope_entries`, `telescope_entries_tags`, `telescope_monitoring`, etc.
+
+4. **Gate** — edit `app/Providers/TelescopeServiceProvider.php` and restrict `viewTelescope` to trusted emails or `local` only:
+
    ```php
-   protected function gate(): void
-   {
-       Gate::define('viewTelescope', function ($user = null) {
-           return in_array($user->email ?? null, [
-               'admin@example.com', // Agrega aquí los emails permitidos
-           ]) || $this->app->environment('local');
-   }
+   Gate::define('viewTelescope', function ($user = null) {
+       return in_array($user->email ?? null, [
+           'admin@example.com',
+       ]) || $this->app->environment('local');
+   });
    ```
 
-5. **Acceder a Telescope**:
-   
-   Una vez completados los pasos anteriores, puedes acceder a Telescope en:
-   ```
-   http://localhost:8080/telescope
-   ```
-   
-   O la URL que corresponda según tu configuración.
+5. **Open UI** — e.g. `http://localhost:8080/telescope` (match your `APP_URL`).
 
-## Configuración en .env
-
-Puedes agregar estas variables opcionales a tu archivo `.env`:
+## `.env` (optional)
 
 ```env
 TELESCOPE_ENABLED=true
@@ -69,29 +63,20 @@ TELESCOPE_PATH=telescope
 TELESCOPE_DOMAIN=null
 ```
 
-## Nota sobre PHP
+## CLI PHP version
 
-Si estás usando PHP 7.4 en la línea de comandos pero tu servidor web usa PHP 8.2+, puedes:
+If `php -v` is older than the app’s requirement, call the right binary:
 
-1. Usar la versión correcta de PHP en la línea de comandos:
-   ```bash
-   php8.2 artisan migrate
-   # o
-   php8.3 artisan migrate
-   ```
+```bash
+php8.3 artisan migrate
+```
 
-2. O ejecutar los comandos directamente desde el servidor web si tienes acceso.
+## Typical files
 
-## Archivos creados
+- `config/telescope.php`  
+- `app/Providers/TelescopeServiceProvider.php`  
+- Telescope migrations under `database/migrations/`  
 
-- `config/telescope.php` - Configuración de Telescope
-- `app/Providers/TelescopeServiceProvider.php` - Service Provider de Telescope
-- `database/migrations/2024_01_01_100000_create_telescope_entries_table.php` - Migración de las tablas
+## Verify
 
-## Verificación
-
-Una vez completada la instalación, puedes verificar que Telescope esté funcionando visitando:
-- `http://localhost:8080/telescope` (o tu URL correspondiente)
-
-Si ves la interfaz de Telescope, ¡está funcionando correctamente!
-
+Visit `/telescope`. If the dashboard loads, Telescope is running.

@@ -53,7 +53,3 @@ trait AppliesFilters
         return ['created_at', 'updated_at'];
     }
 }
-
-
-
-

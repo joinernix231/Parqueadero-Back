@@ -30,20 +30,19 @@ class EntryRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'vehicle_id.required_without' => 'Se requiere vehicle_id o vehicle_data.',
-            'vehicle_id.exists' => 'El vehículo no existe.',
-            'vehicle_data.required_without' => 'Los datos del vehículo son requeridos cuando no se proporciona vehicle_id.',
-            'vehicle_data.plate.required_with' => 'La placa es obligatoria dentro de vehicle_data.',
-            'vehicle_data.owner_name.required_with' => 'El nombre del propietario es obligatorio.',
-            'vehicle_data.phone.required_with' => 'El teléfono es obligatorio.',
-            'vehicle_data.vehicle_type.required_with' => 'El tipo de vehículo es obligatorio.',
-            'vehicle_data.vehicle_type.in' => 'El tipo de vehículo debe ser: car, motorcycle o truck.',
-            'parking_lot_id.required' => 'El estacionamiento es obligatorio.',
-            'parking_lot_id.exists' => 'El estacionamiento no existe.',
-            'parking_spot_id.required' => 'El espacio es obligatorio.',
-            'parking_spot_id.exists' => 'El espacio no existe.',
-            'entry_time.date' => 'La fecha de entrada debe ser válida.',
+            'vehicle_id.required_without' => 'Either vehicle_id or vehicle_data is required.',
+            'vehicle_id.exists' => 'The vehicle does not exist.',
+            'vehicle_data.required_without' => 'Vehicle data is required when vehicle_id is not provided.',
+            'vehicle_data.plate.required_with' => 'License plate is required inside vehicle_data.',
+            'vehicle_data.owner_name.required_with' => 'Owner name is required.',
+            'vehicle_data.phone.required_with' => 'Phone is required.',
+            'vehicle_data.vehicle_type.required_with' => 'Vehicle type is required.',
+            'vehicle_data.vehicle_type.in' => 'Vehicle type must be one of: car, motorcycle, truck.',
+            'parking_lot_id.required' => 'Parking lot is required.',
+            'parking_lot_id.exists' => 'The parking lot does not exist.',
+            'parking_spot_id.required' => 'Parking spot is required.',
+            'parking_spot_id.exists' => 'The parking spot does not exist.',
+            'entry_time.date' => 'Entry time must be a valid date.',
         ];
     }
 }
-

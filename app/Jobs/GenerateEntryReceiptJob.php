@@ -17,6 +17,7 @@ class GenerateEntryReceiptJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+
     public int $timeout = 120;
 
     /**
@@ -24,8 +25,7 @@ class GenerateEntryReceiptJob implements ShouldQueue
      */
     public function __construct(
         public int $ticketId
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
@@ -37,16 +37,16 @@ class GenerateEntryReceiptJob implements ShouldQueue
         try {
             // Recargar el ticket desde el repositorio
             $ticket = $ticketRepository->findById($this->ticketId);
-            
-            if (!$ticket) {
-                throw new \Exception('Ticket no encontrado con ID: ' . $this->ticketId);
+
+            if (! $ticket) {
+                throw new \Exception('Ticket not found with ID: '.$this->ticketId);
             }
 
-            $this->safeLog('info', 'Generando recibo de entrada para ticket ID: ' . $this->ticketId);
+            $this->safeLog('info', 'Generating entry receipt for ticket ID: '.$this->ticketId);
 
             // Asegurar que el directorio existe
             $directory = 'receipts/entry';
-            if (!Storage::disk('local')->exists($directory)) {
+            if (! Storage::disk('local')->exists($directory)) {
                 Storage::disk('local')->makeDirectory($directory);
             }
 
@@ -54,12 +54,12 @@ class GenerateEntryReceiptJob implements ShouldQueue
             $pdf = $receiptService->generateEntryReceiptPdf($ticket);
 
             // Guardar el PDF en storage
-            $filename = $directory . '/recibo-entrada-' . $ticket->getId() . '.pdf';
+            $filename = $directory.'/entry-receipt-'.$ticket->getId().'.pdf';
             Storage::disk('local')->put($filename, $pdf);
 
-            $this->safeLog('info', 'Recibo de entrada generado exitosamente: ' . $filename);
+            $this->safeLog('info', 'Entry receipt generated successfully: '.$filename);
         } catch (\Exception $e) {
-            $this->safeLog('error', 'Error al generar recibo de entrada para ticket ID: ' . $this->ticketId . ' - ' . $e->getMessage());
+            $this->safeLog('error', 'Failed to generate entry receipt for ticket ID: '.$this->ticketId.' - '.$e->getMessage());
 
             // Relanzar la excepción para que el job se reintente
             throw $e;
@@ -71,7 +71,7 @@ class GenerateEntryReceiptJob implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        $this->safeLog('error', 'Job de generación de recibo de entrada falló definitivamente - Ticket ID: ' . $this->ticketId . ' - Error: ' . $exception->getMessage());
+        $this->safeLog('error', 'Entry receipt job failed permanently - Ticket ID: '.$this->ticketId.' - Error: '.$exception->getMessage());
     }
 
     /**
@@ -99,4 +99,3 @@ class GenerateEntryReceiptJob implements ShouldQueue
         }
     }
 }
-

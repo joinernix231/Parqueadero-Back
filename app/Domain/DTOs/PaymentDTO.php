@@ -8,8 +8,7 @@ class PaymentDTO
         public readonly int $ticketId = 0,
         public readonly float $amount = 0.0,
         public readonly string $paymentMethod = 'cash'
-    ) {
-    }
+    ) {}
 
     public static function fromArray(array $data): self
     {
@@ -29,8 +28,3 @@ class PaymentDTO
         ];
     }
 }
-
-
-
-
-

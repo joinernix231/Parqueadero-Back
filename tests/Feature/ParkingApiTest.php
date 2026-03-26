@@ -41,7 +41,7 @@ class ParkingApiTest extends TestCase
         ]);
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -87,7 +87,7 @@ class ParkingApiTest extends TestCase
         ]);
 
         // Crear entrada activa
-        $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -95,7 +95,7 @@ class ParkingApiTest extends TestCase
             ]);
 
         // Act - Intentar segunda entrada
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -118,7 +118,7 @@ class ParkingApiTest extends TestCase
         ]);
 
         // Registrar entrada
-        $entryResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $entryResponse = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -128,7 +128,7 @@ class ParkingApiTest extends TestCase
         $ticketId = $entryResponse->json('data.id');
 
         // Act - Registrar salida
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/exit', [
                 'ticket_id' => $ticketId,
             ]);
@@ -168,14 +168,14 @@ class ParkingApiTest extends TestCase
         ]);
 
         // Crear entradas
-        $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle1->id,
                 'parking_lot_id' => $parkingLot->id,
                 'parking_spot_id' => $spot1->id,
             ]);
 
-        $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle2->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -183,7 +183,7 @@ class ParkingApiTest extends TestCase
             ]);
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking/current');
 
         // Assert
@@ -203,7 +203,7 @@ class ParkingApiTest extends TestCase
         ]);
 
         // Crear entrada y salida
-        $entryResponse = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $entryResponse = $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/entry', [
                 'vehicle_id' => $vehicle->id,
                 'parking_lot_id' => $parkingLot->id,
@@ -212,13 +212,13 @@ class ParkingApiTest extends TestCase
 
         $ticketId = $entryResponse->json('data.id');
 
-        $this->withHeader('Authorization', 'Bearer ' . $token)
+        $this->withHeader('Authorization', 'Bearer '.$token)
             ->postJson('/api/parking/exit', [
                 'ticket_id' => $ticketId,
             ]);
 
         // Act
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->getJson('/api/parking/history');
 
         // Assert
@@ -231,8 +231,3 @@ class ParkingApiTest extends TestCase
             ]);
     }
 }
-
-
-
-
-

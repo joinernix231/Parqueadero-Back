@@ -13,14 +13,14 @@ class CreateParkingLotUseCase
     public function execute(ParkingLotDTO $dto): ParkingLot
     {
         return $this->parkingLotRepository->create([
-            'name'              => $dto->name,
-            'address'           => $dto->address,
-            'total_spots'       => $dto->totalSpots,
-            'hourly_rate_day'   => $dto->hourlyRateDay,
+            'name' => $dto->name,
+            'address' => $dto->address,
+            'total_spots' => $dto->totalSpots,
+            'hourly_rate_day' => $dto->hourlyRateDay,
             'hourly_rate_night' => $dto->hourlyRateNight,
-            'day_start_time'    => $dto->dayStartTime,
-            'day_end_time'      => $dto->dayEndTime,
-            'is_active'         => $dto->isActive,
+            'day_start_time' => $dto->dayStartTime,
+            'day_end_time' => $dto->dayEndTime,
+            'is_active' => $dto->isActive,
         ]);
     }
 }

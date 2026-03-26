@@ -42,8 +42,3 @@ class ParkingSpot extends Model
         return $this->hasMany(ParkingTicket::class);
     }
 }
-
-
-
-
-

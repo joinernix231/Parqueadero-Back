@@ -16,8 +16,7 @@ class ParkingLot
         private bool $isActive = true,
         private ?string $createdAt = null,
         private ?string $updatedAt = null
-    ) {
-    }
+    ) {}
 
     public function getId(): ?int
     {
@@ -88,9 +87,9 @@ class ParkingLot
      */
     public function isDayTime(string $time): bool
     {
-        $t     = substr($time, 0, 5);
+        $t = substr($time, 0, 5);
         $start = substr($this->dayStartTime, 0, 5);
-        $end   = substr($this->dayEndTime, 0, 5);
+        $end = substr($this->dayEndTime, 0, 5);
 
         if ($start < $end) {
             return $t >= $start && $t < $end;
@@ -118,7 +117,7 @@ class ParkingLot
     public function setTotalSpots(int $totalSpots): void
     {
         if ($totalSpots < 0) {
-            throw new \InvalidArgumentException("Total spots cannot be negative");
+            throw new \InvalidArgumentException('Total spots cannot be negative');
         }
         $this->totalSpots = $totalSpots;
     }
@@ -126,7 +125,7 @@ class ParkingLot
     public function setHourlyRateDay(float $hourlyRateDay): void
     {
         if ($hourlyRateDay < 0) {
-            throw new \InvalidArgumentException("Hourly rate cannot be negative");
+            throw new \InvalidArgumentException('Hourly rate cannot be negative');
         }
         $this->hourlyRateDay = $hourlyRateDay;
     }
@@ -134,7 +133,7 @@ class ParkingLot
     public function setHourlyRateNight(float $hourlyRateNight): void
     {
         if ($hourlyRateNight < 0) {
-            throw new \InvalidArgumentException("Hourly rate cannot be negative");
+            throw new \InvalidArgumentException('Hourly rate cannot be negative');
         }
         $this->hourlyRateNight = $hourlyRateNight;
     }
@@ -154,8 +153,3 @@ class ParkingLot
         $this->isActive = $isActive;
     }
 }
-
-
-
-
-

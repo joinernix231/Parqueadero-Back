@@ -48,7 +48,7 @@ class ReceiptApiTest extends TestCase
             'exit_time' => null,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->get("/api/parking/tickets/{$ticket->id}/receipt/entry");
 
         $response->assertStatus(200);
@@ -76,7 +76,7 @@ class ReceiptApiTest extends TestCase
             'total_amount' => 5000.00,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->get("/api/parking/tickets/{$ticket->id}/receipt/exit");
 
         $response->assertStatus(200);
@@ -101,7 +101,7 @@ class ReceiptApiTest extends TestCase
             'exit_time' => null,
         ]);
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->get("/api/parking/tickets/{$ticket->id}/receipt/exit");
 
         $response->assertStatus(422);
@@ -120,11 +120,9 @@ class ReceiptApiTest extends TestCase
     {
         $token = $this->authenticate();
 
-        $response = $this->withHeader('Authorization', 'Bearer ' . $token)
+        $response = $this->withHeader('Authorization', 'Bearer '.$token)
             ->get('/api/parking/tickets/99999/receipt/entry');
 
         $response->assertStatus(404);
     }
 }
-
-

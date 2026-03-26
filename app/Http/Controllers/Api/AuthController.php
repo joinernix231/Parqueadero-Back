@@ -18,17 +18,17 @@ class AuthController extends Controller
         private LoginUseCase $loginUseCase,
         private LogoutUseCase $logoutUseCase,
         private UserRepositoryInterface $userRepository
-    ) {
-    }
+    ) {}
 
     public function login(LoginRequest $request): JsonResponse
     {
         try {
             $dto = LoginDTO::fromArray($request->validated());
             $result = $this->loginUseCase->execute($dto);
+
             return $this->sendResponse(
                 new AuthResource($result),
-                'Inicio de sesión exitoso'
+                'Login successful'
             );
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 401);
@@ -40,7 +40,8 @@ class AuthController extends Controller
         try {
             $user = $this->userRepository->findById($request->user()->id);
             $this->logoutUseCase->execute($user);
-            return $this->sendResponse(null, 'Sesión cerrada exitosamente');
+
+            return $this->sendResponse(null, 'Logged out successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -50,12 +51,13 @@ class AuthController extends Controller
     {
         try {
             $user = $this->userRepository->findById($request->user()->id);
-            if (!$user) {
-                return $this->sendError('Usuario no encontrado', 404);
+            if (! $user) {
+                return $this->sendError('User not found', 404);
             }
+
             return $this->sendResponse(
                 new \App\Http\Resources\UserResource($user),
-                'Usuario autenticado recuperado correctamente'
+                'Authenticated user retrieved successfully'
             );
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 401);

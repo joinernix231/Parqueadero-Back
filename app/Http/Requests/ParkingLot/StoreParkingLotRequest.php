@@ -28,19 +28,18 @@ class StoreParkingLotRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'El nombre es obligatorio.',
-            'address.required' => 'La dirección es obligatoria.',
-            'total_spots.required' => 'El número total de espacios es obligatorio.',
-            'total_spots.min' => 'Debe haber al menos 1 espacio.',
-            'hourly_rate_day.required' => 'La tarifa horaria diurna es obligatoria.',
-            'hourly_rate_day.min' => 'La tarifa horaria diurna debe ser mayor o igual a 0.',
-            'hourly_rate_night.required' => 'La tarifa horaria nocturna es obligatoria.',
-            'hourly_rate_night.min' => 'La tarifa horaria nocturna debe ser mayor o igual a 0.',
-            'day_start_time.required' => 'La hora de inicio del día es obligatoria.',
-            'day_start_time.regex' => 'El formato de hora no es válido (HH:MM).',
-            'day_end_time.required' => 'La hora de fin del día es obligatoria.',
-            'day_end_time.regex' => 'El formato de hora no es válido (HH:MM).',
+            'name.required' => 'Name is required.',
+            'address.required' => 'Address is required.',
+            'total_spots.required' => 'Total number of spots is required.',
+            'total_spots.min' => 'There must be at least one spot.',
+            'hourly_rate_day.required' => 'Day hourly rate is required.',
+            'hourly_rate_day.min' => 'Day hourly rate must be greater than or equal to 0.',
+            'hourly_rate_night.required' => 'Night hourly rate is required.',
+            'hourly_rate_night.min' => 'Night hourly rate must be greater than or equal to 0.',
+            'day_start_time.required' => 'Day start time is required.',
+            'day_start_time.regex' => 'Invalid time format (use HH:MM).',
+            'day_end_time.required' => 'Day end time is required.',
+            'day_end_time.regex' => 'Invalid time format (use HH:MM).',
         ];
     }
 }
-

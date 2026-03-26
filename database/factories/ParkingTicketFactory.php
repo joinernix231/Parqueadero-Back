@@ -39,8 +39,3 @@ class ParkingTicketFactory extends Factory
         ];
     }
 }
-
-
-
-
-

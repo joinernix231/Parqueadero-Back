@@ -1,70 +1,70 @@
-# Checklist de Pruebas Manuales - Sistema de Parqueadero
+# Manual testing checklist — parking system
 
-## Flujo de Entrada
+## Entry flow
 
-- [ ] Buscar vehículo existente por placa
-- [ ] Registrar nuevo vehículo si no existe
-- [ ] Seleccionar estacionamiento y espacio disponible
-- [ ] Registrar entrada exitosamente
-- [ ] Verificar que PDF se descarga automáticamente
-- [ ] Verificar contenido del PDF (información correcta)
-- [ ] Verificar que se muestra información del ticket creado
-- [ ] Probar botón de re-descargar recibo
-- [ ] Verificar que el espacio queda ocupado
+- [ ] Find an existing vehicle by license plate  
+- [ ] Register a new vehicle when none exists  
+- [ ] Select parking lot and available spot  
+- [ ] Complete entry successfully  
+- [ ] Confirm PDF download (if applicable)  
+- [ ] Check PDF content (correct data)  
+- [ ] Confirm ticket details in the UI/API response  
+- [ ] Re-download receipt if the feature exists  
+- [ ] Confirm spot shows as occupied  
 
-## Flujo de Salida
+## Exit flow
 
-- [ ] Buscar ticket activo por placa
-- [ ] Verificar que se muestra información del ticket
-- [ ] Verificar cálculo de precio en tiempo real
-- [ ] Verificar tiempo transcurrido se actualiza
-- [ ] Generar PDF antes de confirmar salida (opcional)
-- [ ] Verificar contenido del PDF pre-salida
-- [ ] Confirmar salida
-- [ ] Verificar que se muestra resumen final
-- [ ] Generar PDF de salida con precio final
-- [ ] Verificar contenido del PDF de salida (precio calculado correctamente)
-- [ ] Verificar que el espacio queda liberado
-- [ ] Verificar que el ticket queda marcado como cerrado
+- [ ] Find active ticket by plate  
+- [ ] Confirm ticket details  
+- [ ] Confirm live price calculation  
+- [ ] Confirm elapsed time updates  
+- [ ] Optional: generate pre-exit PDF  
+- [ ] Confirm exit  
+- [ ] Confirm final summary  
+- [ ] Generate exit PDF with final amount  
+- [ ] Verify exit PDF totals  
+- [ ] Confirm spot is freed  
+- [ ] Confirm ticket is closed  
 
-## Casos Edge
+## Edge cases
 
-- [ ] Intentar registrar entrada con espacio ocupado
-- [ ] Intentar registrar salida con ticket inexistente
-- [ ] Intentar generar PDF de salida sin haber registrado salida
-- [ ] Probar con diferentes tipos de vehículos (car, motorcycle, truck)
-- [ ] Probar con diferentes horarios (día/noche) para verificar cálculo de precio
-- [ ] Probar con estacionamientos diferentes
-- [ ] Verificar autenticación en todos los endpoints
+- [ ] Entry with an occupied spot (expect error)  
+- [ ] Exit with invalid ticket  
+- [ ] Exit PDF without exit time recorded  
+- [ ] Vehicle types: car, motorcycle, truck  
+- [ ] Day vs night pricing windows  
+- [ ] Multiple parking lots  
+- [ ] Auth required on protected routes  
 
-## Validación de PDFs
+## PDF checks
 
-- [ ] Verificar diseño profesional y legible
-- [ ] Verificar que toda la información está presente
-- [ ] Verificar formato de fechas y horas
-- [ ] Verificar cálculo de precios correcto
-- [ ] Verificar que PDF se abre correctamente en diferentes navegadores
-- [ ] Verificar que PDF se puede imprimir correctamente
+- [ ] Layout is readable  
+- [ ] All required fields present  
+- [ ] Date/time formatting  
+- [ ] Price math  
+- [ ] Opens in major browsers  
+- [ ] Prints cleanly  
 
-## Notas de Prueba
+## Test notes
 
-### Navegadores a Probar
-- Chrome (última versión)
-- Firefox (última versión)
-- Edge (última versión)
+### Browsers
 
-### Escenarios de Precio
-- Estacionamiento durante horas diurnas solamente
-- Estacionamiento durante horas nocturnas solamente
-- Estacionamiento que cruza de día a noche
-- Estacionamiento que cruza medianoche
+- Chrome (current)  
+- Firefox (current)  
+- Edge (current)  
 
-### Validación de Datos en PDFs
-- Información del vehículo (placa, propietario, tipo)
-- Información del estacionamiento (nombre, dirección)
-- Información del espacio (número, tipo)
-- Fechas y horas de entrada/salida
-- Cálculo de horas y precio
-- Método de pago (si aplica)
+### Pricing scenarios
 
+- Day rates only  
+- Night rates only  
+- Spanning day → night  
+- Spanning midnight  
 
+### Data to verify on receipts
+
+- Vehicle (plate, owner, type)  
+- Lot (name, address)  
+- Spot (number, type)  
+- Entry/exit times  
+- Hours and totals  
+- Payment method when paid  

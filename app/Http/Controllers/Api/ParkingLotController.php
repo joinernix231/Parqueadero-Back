@@ -19,14 +19,14 @@ class ParkingLotController extends Controller
         private ParkingLotRepositoryInterface $parkingLotRepository,
         private CreateParkingLotUseCase $createParkingLotUseCase,
         private UpdateParkingLotUseCase $updateParkingLotUseCase
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
         try {
             $lots = $this->parkingLotRepository->all($request->only(['is_active']));
-            return $this->sendResponse(ParkingLotResource::collection($lots), 'Estacionamientos obtenidos correctamente');
+
+            return $this->sendResponse(ParkingLotResource::collection($lots), 'Parking lots retrieved successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -36,10 +36,11 @@ class ParkingLotController extends Controller
     {
         try {
             $lot = $this->parkingLotRepository->findById($id);
-            if (!$lot) {
-                return $this->sendError('Estacionamiento no encontrado', 404);
+            if (! $lot) {
+                return $this->sendError('Parking lot not found', 404);
             }
-            return $this->sendResponse(new ParkingLotResource($lot), 'Estacionamiento obtenido correctamente');
+
+            return $this->sendResponse(new ParkingLotResource($lot), 'Parking lot retrieved successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 500);
         }
@@ -50,7 +51,8 @@ class ParkingLotController extends Controller
         try {
             $dto = ParkingLotDTO::fromArray($request->validated());
             $lot = $this->createParkingLotUseCase->execute($dto);
-            return $this->sendResponse(new ParkingLotResource($lot), 'Estacionamiento creado correctamente');
+
+            return $this->sendResponse(new ParkingLotResource($lot), 'Parking lot created successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }
@@ -60,7 +62,8 @@ class ParkingLotController extends Controller
     {
         try {
             $lot = $this->updateParkingLotUseCase->execute($id, $request->validated());
-            return $this->sendResponse(new ParkingLotResource($lot), 'Estacionamiento actualizado correctamente');
+
+            return $this->sendResponse(new ParkingLotResource($lot), 'Parking lot updated successfully');
         } catch (Throwable $e) {
             return $this->sendError($e->getMessage(), 422);
         }
